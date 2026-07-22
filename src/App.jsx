@@ -4,9 +4,12 @@ import StatsBar from './components/StatsBar'
 import FilterBar from './components/FilterBar'
 import ResultsTable from './components/ResultsTable'
 import Spinner from './components/Spinner'
+import HelpTooltip from './components/HelpTooltip'
 import { compareFiles } from './utils/compare'
 
 const INITIAL_SIDE = { data: null, headers: [], file: null, codeCol: '', priceCol: '' }
+const LABEL_A = 'Lista en drive de proveedores'
+const LABEL_B = 'Lista del cliente'
 
 export default function App() {
   const [sideA, setSideA] = useState(INITIAL_SIDE)
@@ -65,11 +68,12 @@ export default function App() {
     diff: results.filter(r => r.status === 'diff').length,
   }
 
-  const nameA = sideA.file ? sideA.file.name.replace(/\.[^.]+$/, '') : 'Lista A'
-  const nameB = sideB.file ? sideB.file.name.replace(/\.[^.]+$/, '') : 'Lista B'
+  const nameA = sideA.file ? sideA.file.name.replace(/\.[^.]+$/, '') : LABEL_A
+  const nameB = sideB.file ? sideB.file.name.replace(/\.[^.]+$/, '') : LABEL_B
 
   return (
     <div className="min-h-screen bg-bg text-prose font-sans px-6 py-8 pb-16">
+      <HelpTooltip />
       <header className="text-center mb-10">
         <h1 className="text-2xl font-bold tracking-tight text-accent">
           Comparador de Listas de Precios
@@ -80,8 +84,8 @@ export default function App() {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-4xl mx-auto mb-8">
-        <FilePanel side="A" sideState={sideA} onFileLoad={handleFileLoad} onColChange={handleColChange} />
-        <FilePanel side="B" sideState={sideB} onFileLoad={handleFileLoad} onColChange={handleColChange} />
+        <FilePanel side="A" label={LABEL_A} sideState={sideA} onFileLoad={handleFileLoad} onColChange={handleColChange} />
+        <FilePanel side="B" label={LABEL_B} sideState={sideB} onFileLoad={handleFileLoad} onColChange={handleColChange} />
       </div>
 
       <div className="text-center mb-10">

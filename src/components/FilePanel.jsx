@@ -9,7 +9,7 @@ function autoDetect(headers, keywords) {
   return headers.find(h => keywords.some(k => h.toLowerCase().includes(k))) || ''
 }
 
-export default function FilePanel({ side, sideState, onFileLoad, onColChange }) {
+export default function FilePanel({ side, label, sideState, onFileLoad, onColChange }) {
   const inputRef = useRef()
   const [dragging, setDragging] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -42,7 +42,7 @@ export default function FilePanel({ side, sideState, onFileLoad, onColChange }) 
 
   return (
     <div className="bg-surface border border-app-border rounded-xl p-6">
-      <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-4">Lista {side}</h2>
+      <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-4">{label}</h2>
 
       <div
         className={dropClass}
