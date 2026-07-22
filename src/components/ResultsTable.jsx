@@ -46,9 +46,9 @@ export default function ResultsTable({ rows, nameA, nameB }) {
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-app-border">
+    <div className="overflow-auto rounded-xl border border-app-border max-h-[60vh]">
       <table className="w-full text-sm border-collapse">
-        <thead>
+        <thead className="sticky top-0 z-10">
           <tr className="bg-surface2">
             {['Código', 'Estado', nameA, nameB, 'Δ %'].map(h => (
               <th key={h} className="px-4 py-3 text-left text-xs uppercase tracking-widest text-muted font-semibold whitespace-nowrap">
