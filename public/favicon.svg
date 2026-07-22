@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Fondo verde Excel -->
+  <rect width="32" height="32" rx="4" fill="#1D6F42"/>
+  <!-- Hoja de papel -->
+  <rect x="10" y="4" width="16" height="20" rx="1.5" fill="white"/>
+  <!-- Doblez esquina superior derecha -->
+  <path d="M22 4 L26 8 L22 8 Z" fill="#B0C4B8"/>
+  <rect x="22" y="4" width="4" height="4" rx="0" fill="#1D6F42"/>
+  <path d="M22 4 L26 8 L22 8 Z" fill="#fff" opacity="0.3"/>
+  <!-- Líneas de celda -->
+  <line x1="10" y1="11" x2="26" y2="11" stroke="#1D6F42" stroke-width="0.8"/>
+  <line x1="10" y1="15" x2="26" y2="15" stroke="#1D6F42" stroke-width="0.8"/>
+  <line x1="10" y1="19" x2="26" y2="19" stroke="#1D6F42" stroke-width="0.8"/>
+  <line x1="17" y1="8" x2="17" y2="24" stroke="#1D6F42" stroke-width="0.8"/>
+  <!-- Letra X verde sobre la hoja -->
+  <text x="5" y="26" font-family="Arial,sans-serif" font-weight="900" font-size="15" fill="white">X</text>
+</svg>
