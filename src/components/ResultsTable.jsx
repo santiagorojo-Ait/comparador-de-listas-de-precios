@@ -44,9 +44,9 @@ export default function ResultsTable({ rows, nameA, nameB }) {
   const cols = ['Código', 'Estado', nameA, nameB, 'Δ %']
 
   return (
-    <div className="rounded-xl border border-app-border overflow-hidden">
-      <table className="w-full text-sm table-fixed border-collapse">
-        <thead>
+    <div className="overflow-auto max-h-[60vh] rounded-xl border border-app-border">
+      <table className="w-full text-sm border-collapse">
+        <thead className="sticky top-0 z-10">
           <tr className="bg-surface2">
             {cols.map(h => (
               <th key={h} className="px-4 py-3 text-left text-xs uppercase tracking-widest text-muted font-semibold whitespace-nowrap">
@@ -55,11 +55,11 @@ export default function ResultsTable({ rows, nameA, nameB }) {
             ))}
           </tr>
         </thead>
-        <tbody className="block overflow-y-auto max-h-[55vh] w-full">
+        <tbody>
           {rows.map((r, i) => {
             const cfg = STATUS_CONFIG[r.status]
             return (
-              <tr key={i} className={`table w-full table-fixed border-t border-app-border ${ROW_BG[r.status]}`}>
+              <tr key={i} className={`border-t border-app-border ${ROW_BG[r.status]}`}>
                 <td className="px-4 py-2.5 font-mono text-xs">{r.code}</td>
                 <td className="px-4 py-2.5">
                   <span className={`inline-block px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide ${cfg.cls}`}>
