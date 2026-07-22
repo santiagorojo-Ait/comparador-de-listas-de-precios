@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import FilePanel from './components/FilePanel'
 import StatsBar from './components/StatsBar'
 import FilterBar from './components/FilterBar'
@@ -12,10 +12,26 @@ export default function App() {
   const [sideA, setSideA] = useState(INITIAL_SIDE)
   const [sideB, setSideB] = useState(INITIAL_SIDE)
   const [results, setResults] = useState([])
+  const [filteredResults, setFilteredResults] = useState([])
   const [hasCompared, setHasCompared] = useState(false)
   const [comparing, setComparing] = useState(false)
+  const [filtering, setFiltering] = useState(false)
   const [filter, setFilter] = useState('all')
   const [search, setSearch] = useState('')
+
+  useEffect(() => {
+    if (results.length === 0) { setFilteredResults([]); return }
+    setFiltering(true)
+    const timer = setTimeout(() => {
+      setFilteredResults(results.filter(r => {
+        if (filter !== 'all' && r.status !== filter) return false
+        if (search && !r.code.includes(search.toUpperCase())) return false
+        return true
+      }))
+      setFiltering(false)
+    }, 0)
+    return () => clearTimeout(timer)
+  }, [filter, search, results])
 
   const handleFileLoad = useCallback((side, file, data, headers, autoDetected) => {
     const setter = side === 'A' ? setSideA : setSideB
@@ -50,12 +66,6 @@ export default function App() {
     'only-a': results.filter(r => r.status === 'only-a').length,
     'only-b': results.filter(r => r.status === 'only-b').length,
   }
-
-  const filteredResults = results.filter(r => {
-    if (filter !== 'all' && r.status !== filter) return false
-    if (search && !r.code.includes(search.toUpperCase())) return false
-    return true
-  })
 
   const nameA = sideA.file ? sideA.file.name.replace(/\.[^.]+$/, '') : 'Lista A'
   const nameB = sideB.file ? sideB.file.name.replace(/\.[^.]+$/, '') : 'Lista B'
@@ -106,7 +116,14 @@ export default function App() {
               className="w-full bg-surface border border-app-border text-prose placeholder:text-muted rounded-lg px-4 py-2 text-sm font-mono focus:outline-none focus:border-accent transition-colors"
             />
           </div>
-          <ResultsTable rows={filteredResults} nameA={nameA} nameB={nameB} />
+          <div className="relative">
+            {filtering && (
+              <div className="absolute inset-0 bg-bg/60 backdrop-blur-[2px] flex items-center justify-center z-20 rounded-xl">
+                <Spinner size="lg" />
+              </div>
+            )}
+            <ResultsTable rows={filteredResults} nameA={nameA} nameB={nameB} />
+          </div>
         </div>
       )}
     </div>
