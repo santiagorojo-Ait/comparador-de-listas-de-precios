@@ -1,8 +1,6 @@
 const CHIPS = [
   { key: 'ok', label: 'Coinciden', color: 'text-accent' },
   { key: 'diff', label: 'Diferencias', color: 'text-danger' },
-  { key: 'only-a', label: 'Solo en A', color: 'text-warn' },
-  { key: 'only-b', label: 'Solo en B', color: 'text-violet-400' },
 ]
 
 export default function StatsBar({ counts }) {

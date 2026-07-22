@@ -61,10 +61,8 @@ export default function App() {
   }
 
   const counts = {
-    ok:       results.filter(r => r.status === 'ok').length,
-    diff:     results.filter(r => r.status === 'diff').length,
-    'only-a': results.filter(r => r.status === 'only-a').length,
-    'only-b': results.filter(r => r.status === 'only-b').length,
+    ok:   results.filter(r => r.status === 'ok').length,
+    diff: results.filter(r => r.status === 'diff').length,
   }
 
   const nameA = sideA.file ? sideA.file.name.replace(/\.[^.]+$/, '') : 'Lista A'

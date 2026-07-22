@@ -2,8 +2,6 @@ const FILTERS = [
   { value: 'all', label: 'Todos' },
   { value: 'ok', label: 'Coinciden' },
   { value: 'diff', label: 'Diferencias' },
-  { value: 'only-a', label: 'Solo en A' },
-  { value: 'only-b', label: 'Solo en B' },
 ]
 
 export default function FilterBar({ filter, setFilter, total }) {

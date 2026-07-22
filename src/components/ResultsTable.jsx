@@ -1,15 +1,11 @@
 const STATUS_CONFIG = {
-  ok:       { label: '✓ Igual',      cls: 'bg-accent-dim text-accent' },
-  diff:     { label: '✕ Diferencia', cls: 'bg-danger-dim text-danger' },
-  'only-a': { label: 'Solo A',       cls: 'bg-warn-dim text-warn' },
-  'only-b': { label: 'Solo B',       cls: 'bg-[#3b1f6b] text-violet-400' },
+  ok:   { label: '✓ Igual',      cls: 'bg-accent-dim text-accent' },
+  diff: { label: '✕ Diferencia', cls: 'bg-danger-dim text-danger' },
 }
 
 const ROW_BG = {
-  ok:       '',
-  diff:     'bg-danger/5',
-  'only-a': 'bg-warn/5',
-  'only-b': 'bg-violet-500/5',
+  ok:   '',
+  diff: 'bg-danger/5',
 }
 
 function formatPrice(val) {
