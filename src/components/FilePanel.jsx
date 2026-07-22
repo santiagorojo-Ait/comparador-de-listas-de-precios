@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { parseFile } from '../utils/parseFile'
+import Spinner from './Spinner'
 
 const CODE_KEYWORDS = ['codigo', 'code', 'cod', 'articulo', 'id', 'sku', 'referencia', 'ref']
 const PRICE_KEYWORDS = ['precio', 'price', 'importe', 'valor', 'costo', 'pvp', 'monto']
@@ -11,13 +12,16 @@ function autoDetect(headers, keywords) {
 export default function FilePanel({ side, sideState, onFileLoad, onColChange }) {
   const inputRef = useRef()
   const [dragging, setDragging] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const handleLoad = (file) => {
+    setLoading(true)
     parseFile(file, (data, headers) => {
       onFileLoad(side, file, data, headers, {
         codeCol: autoDetect(headers, CODE_KEYWORDS),
         priceCol: autoDetect(headers, PRICE_KEYWORDS),
       })
+      setLoading(false)
     })
   }
 
@@ -29,9 +33,11 @@ export default function FilePanel({ side, sideState, onFileLoad, onColChange }) 
   }
 
   const dropClass = [
-    'border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all',
-    dragging ? 'border-accent bg-accent/5' : 'border-app-border hover:border-accent hover:bg-accent/5',
-    sideState.file ? '!border-solid !border-accent' : '',
+    'border-2 border-dashed rounded-lg p-8 text-center transition-all',
+    loading ? 'border-accent/50 cursor-wait' : 'cursor-pointer',
+    !loading && dragging ? 'border-accent bg-accent/5' : '',
+    !loading && !dragging ? 'border-app-border hover:border-accent hover:bg-accent/5' : '',
+    sideState.file && !loading ? '!border-solid !border-accent' : '',
   ].join(' ')
 
   return (
@@ -40,18 +46,27 @@ export default function FilePanel({ side, sideState, onFileLoad, onColChange }) 
 
       <div
         className={dropClass}
-        onClick={() => inputRef.current.click()}
-        onDragOver={e => { e.preventDefault(); setDragging(true) }}
+        onClick={() => !loading && inputRef.current.click()}
+        onDragOver={e => { e.preventDefault(); if (!loading) setDragging(true) }}
         onDragLeave={() => setDragging(false)}
         onDrop={onDrop}
       >
-        <div className="text-3xl mb-2">📂</div>
-        {sideState.file ? (
-          <p className="text-accent font-semibold text-sm">{sideState.file.name}</p>
+        {loading ? (
+          <div className="flex flex-col items-center gap-3">
+            <Spinner size="lg" />
+            <p className="text-muted text-sm">Procesando archivo...</p>
+          </div>
         ) : (
           <>
-            <p className="text-muted text-sm">Arrastrá o hacé clic para subir</p>
-            <p className="text-muted text-xs mt-1">.xlsx, .xls, .csv</p>
+            <div className="text-3xl mb-2">📂</div>
+            {sideState.file ? (
+              <p className="text-accent font-semibold text-sm">{sideState.file.name}</p>
+            ) : (
+              <>
+                <p className="text-muted text-sm">Arrastrá o hacé clic para subir</p>
+                <p className="text-muted text-xs mt-1">.xlsx, .xls, .csv</p>
+              </>
+            )}
           </>
         )}
       </div>

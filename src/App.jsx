@@ -3,6 +3,7 @@ import FilePanel from './components/FilePanel'
 import StatsBar from './components/StatsBar'
 import FilterBar from './components/FilterBar'
 import ResultsTable from './components/ResultsTable'
+import Spinner from './components/Spinner'
 import { compareFiles } from './utils/compare'
 
 const INITIAL_SIDE = { data: null, headers: [], file: null, codeCol: '', priceCol: '' }
@@ -12,6 +13,7 @@ export default function App() {
   const [sideB, setSideB] = useState(INITIAL_SIDE)
   const [results, setResults] = useState([])
   const [hasCompared, setHasCompared] = useState(false)
+  const [comparing, setComparing] = useState(false)
   const [filter, setFilter] = useState('all')
   const [search, setSearch] = useState('')
 
@@ -32,11 +34,14 @@ export default function App() {
     sideA.codeCol && sideA.priceCol &&
     sideB.codeCol && sideB.priceCol
 
-  const compare = () => {
+  const compare = async () => {
+    setComparing(true)
+    await new Promise(resolve => setTimeout(resolve, 30))
     setResults(compareFiles(sideA, sideB))
     setHasCompared(true)
     setFilter('all')
     setSearch('')
+    setComparing(false)
   }
 
   const counts = {
@@ -74,10 +79,17 @@ export default function App() {
       <div className="text-center mb-10">
         <button
           onClick={compare}
-          disabled={!canCompare}
-          className="bg-accent text-bg font-bold px-10 py-3 rounded-lg text-sm tracking-wide transition-all disabled:opacity-30 disabled:cursor-not-allowed enabled:hover:opacity-90 enabled:hover:-translate-y-px"
+          disabled={!canCompare || comparing}
+          className="bg-accent text-bg font-bold px-10 py-3 rounded-lg text-sm tracking-wide transition-all disabled:opacity-30 disabled:cursor-not-allowed enabled:hover:opacity-90 enabled:hover:-translate-y-px inline-flex items-center gap-2"
         >
-          Comparar listas →
+          {comparing ? (
+            <>
+              <Spinner size="sm" />
+              Comparando...
+            </>
+          ) : (
+            'Comparar listas →'
+          )}
         </button>
       </div>
 
