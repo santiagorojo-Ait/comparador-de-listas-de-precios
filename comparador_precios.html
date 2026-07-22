@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comparador de Listas de Precios</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1e2e;
+      --surface2: #232840;
+      --border: #2e3454;
+      --accent: #a3e635;
+      --accent-dim: #4d6e18;
+      --red: #f87171;
+      --red-dim: #7f1d1d;
+      --yellow: #fbbf24;
+      --yellow-dim: #78350f;
+      --text: #e2e8f0;
+      --text-muted: #64748b;
+      --mono: 'JetBrains Mono', 'Fira Mono', 'Consolas', monospace;
+      --sans: 'Inter', system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: var(--accent);
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 0.4rem;
+    }
+
+    .upload-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      max-width: 1000px;
+      margin: 0 auto 2rem;
+    }
+
+    .file-panel {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .file-panel h2 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 2rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: transparent;
+    }
+
+    .drop-zone:hover, .drop-zone.drag-over {
+      border-color: var(--accent);
+      background: rgba(163, 230, 53, 0.04);
+    }
+
+    .drop-zone.loaded {
+      border-color: var(--accent);
+      border-style: solid;
+    }
+
+    .drop-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .drop-zone p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .drop-zone .filename {
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-top: 0.25rem;
+    }
+
+    input[type="file"] { display: none; }
+
+    .col-selectors {
+      margin-top: 1.25rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .col-selectors label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+
+    .col-selectors select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.45rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-family: var(--mono);
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .col-selectors select:focus {
+      border-color: var(--accent);
+    }
+
+    .col-selectors select:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .compare-btn-wrap {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .compare-btn {
+      background: var(--accent);
+      color: #0f1117;
+      border: none;
+      padding: 0.75rem 2.5rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      letter-spacing: 0.3px;
+    }
+
+    .compare-btn:hover:not(:disabled) {
+      opacity: 0.88;
+      transform: translateY(-1px);
+    }
+
+    .compare-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    /* Results */
+    #results { max-width: 1000px; margin: 0 auto; }
+
+    .stats-bar {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .stat-chip {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.65rem 1.1rem;
+      flex: 1;
+      min-width: 130px;
+      text-align: center;
+    }
+
+    .stat-chip .num {
+      font-size: 1.6rem;
+      font-weight: 700;
+      font-family: var(--mono);
+      line-height: 1;
+    }
+
+    .stat-chip .label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.3rem;
+    }
+
+    .stat-chip.ok .num { color: var(--accent); }
+    .stat-chip.diff .num { color: var(--red); }
+    .stat-chip.only-a .num { color: var(--yellow); }
+    .stat-chip.only-b .num { color: #a78bfa; }
+
+    /* Filters */
+    .filters {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .filter-btn.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(163, 230, 53, 0.08);
+    }
+
+    /* Table */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    thead tr {
+      background: var(--surface2);
+    }
+
+    th {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 0.6rem 1rem;
+      border-top: 1px solid var(--border);
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      vertical-align: middle;
+    }
+
+    tr.row-ok { background: transparent; }
+    tr.row-diff { background: rgba(248, 113, 113, 0.05); }
+    tr.row-only-a { background: rgba(251, 191, 36, 0.05); }
+    tr.row-only-b { background: rgba(167, 139, 250, 0.05); }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-ok { background: var(--accent-dim); color: var(--accent); }
+    .badge-diff { background: var(--red-dim); color: var(--red); }
+    .badge-only-a { background: var(--yellow-dim); color: var(--yellow); }
+    .badge-only-b { background: #3b1f6b; color: #a78bfa; }
+
+    .delta-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .delta-bar {
+      height: 6px;
+      border-radius: 3px;
+      background: var(--red);
+      min-width: 4px;
+    }
+
+    .delta-text {
+      font-size: 0.78rem;
+      color: var(--red);
+      white-space: nowrap;
+    }
+
+    .delta-text.positive { color: var(--accent); }
+    .delta-text.equal { color: var(--text-muted); }
+
+    .missing { color: var(--text-muted); font-style: italic; }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-muted);
+    }
+
+    /* Search */
+    .search-wrap {
+      margin-bottom: 1rem;
+    }
+
+    .search-wrap input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.55rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-family: var(--mono);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-wrap input:focus {
+      border-color: var(--accent);
+    }
+
+    @media (max-width: 640px) {
+      .upload-grid { grid-template-columns: 1fr; }
+      .stats-bar { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Comparador de Listas de Precios</h1>
+  <p>Subí dos archivos Excel y verificá si los precios coinciden artículo por artículo</p>
+</header>
+
+<div class="upload-grid">
+  <!-- Lista A -->
+  <div class="file-panel">
+    <h2>Lista A</h2>
+    <div class="drop-zone" id="dropA" onclick="document.getElementById('fileA').click()">
+      <div class="drop-icon">📂</div>
+      <p>Arrastrá o hacé clic para subir</p>
+      <p style="font-size:0.75rem; margin-top:0.2rem">.xlsx, .xls, .csv</p>
+      <div class="filename" id="nameA"></div>
+    </div>
+    <input type="file" id="fileA" accept=".xlsx,.xls,.csv" onchange="handleFile('A', this)">
+    <div class="col-selectors">
+      <div>
+        <label>Columna de Código</label>
+        <select id="codeColA" disabled onchange="syncSelectors('A')">
+          <option value="">— elegir —</option>
+        </select>
+      </div>
+      <div>
+        <label>Columna de Precio</label>
+        <select id="priceColA" disabled onchange="syncSelectors('A')">
+          <option value="">— elegir —</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista B -->
+  <div class="file-panel">
+    <h2>Lista B</h2>
+    <div class="drop-zone" id="dropB" onclick="document.getElementById('fileB').click()">
+      <div class="drop-icon">📂</div>
+      <p>Arrastrá o hacé clic para subir</p>
+      <p style="font-size:0.75rem; margin-top:0.2rem">.xlsx, .xls, .csv</p>
+      <div class="filename" id="nameB"></div>
+    </div>
+    <input type="file" id="fileB" accept=".xlsx,.xls,.csv" onchange="handleFile('B', this)">
+    <div class="col-selectors">
+      <div>
+        <label>Columna de Código</label>
+        <select id="codeColB" disabled onchange="syncSelectors('B')">
+          <option value="">— elegir —</option>
+        </select>
+      </div>
+      <div>
+        <label>Columna de Precio</label>
+        <select id="priceColB" disabled onchange="syncSelectors('B')">
+          <option value="">— elegir —</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="compare-btn-wrap">
+  <button class="compare-btn" id="compareBtn" disabled onclick="compare()">Comparar listas →</button>
+</div>
+
+<div id="results"></div>
+
+<script>
+  const state = {
+    A: { data: null, headers: [], file: null },
+    B: { data: null, headers: [], file: null },
+    results: [],
+    filter: 'all',
+    search: ''
+  };
+
+  // Drag & drop
+  ['A','B'].forEach(side => {
+    const zone = document.getElementById('drop' + side);
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file) loadFile(side, file);
+    });
+  });
+
+  function handleFile(side, input) {
+    if (input.files[0]) loadFile(side, input.files[0]);
+  }
+
+  function loadFile(side, file) {
+    state[side].file = file;
+    document.getElementById('name' + side).textContent = file.name;
+    document.getElementById('drop' + side).classList.add('loaded');
+
+    const reader = new FileReader();
+    reader.onload = e => {
+      let data;
+      const name = file.name.toLowerCase();
+
+      if (name.endsWith('.csv')) {
+        const text = e.target.result;
+        const wb = XLSX.read(text, { type: 'string' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        data = XLSX.utils.sheet_to_json(ws, { defval: '' });
+      } else {
+        const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        data = XLSX.utils.sheet_to_json(ws, { defval: '' });
+      }
+
+      state[side].data = data;
+      state[side].headers = data.length > 0 ? Object.keys(data[0]) : [];
+      populateSelectors(side);
+    };
+
+    if (file.name.toLowerCase().endsWith('.csv')) {
+      reader.readAsText(file, 'UTF-8');
+    } else {
+      reader.readAsArrayBuffer(file);
+    }
+  }
+
+  function populateSelectors(side) {
+    const headers = state[side].headers;
+    ['codeCol','priceCol'].forEach(prefix => {
+      const sel = document.getElementById(prefix + side);
+      sel.innerHTML = '<option value="">— elegir —</option>';
+      headers.forEach(h => {
+        const opt = document.createElement('option');
+        opt.value = h;
+        opt.textContent = h;
+        sel.appendChild(opt);
+      });
+      sel.disabled = false;
+    });
+
+    // Auto-detect common column names
+    autoDetect(side, 'codeCol', ['codigo', 'code', 'cod', 'articulo', 'id', 'sku', 'referencia', 'ref']);
+    autoDetect(side, 'priceCol', ['precio', 'price', 'importe', 'valor', 'costo', 'pvp', 'monto']);
+
+    checkReady();
+  }
+
+  function autoDetect(side, prefix, keywords) {
+    const headers = state[side].headers;
+    const sel = document.getElementById(prefix + side);
+    const match = headers.find(h => keywords.some(k => h.toLowerCase().includes(k)));
+    if (match) sel.value = match;
+  }
+
+  function syncSelectors(side) { checkReady(); }
+
+  function checkReady() {
+    const ready =
+      state.A.data && state.B.data &&
+      document.getElementById('codeColA').value &&
+      document.getElementById('priceColA').value &&
+      document.getElementById('codeColB').value &&
+      document.getElementById('priceColB').value;
+    document.getElementById('compareBtn').disabled = !ready;
+  }
+
+  function parsePrice(val) {
+    if (val === null || val === undefined || val === '') return NaN;
+    const str = String(val).replace(/[^\d.,\-]/g, '').replace(',', '.');
+    return parseFloat(str);
+  }
+
+  function compare() {
+    const codeA = document.getElementById('codeColA').value;
+    const priceA = document.getElementById('priceColA').value;
+    const codeB = document.getElementById('codeColB').value;
+    const priceB = document.getElementById('priceColB').value;
+
+    const mapB = {};
+    state.B.data.forEach(row => {
+      const key = String(row[codeB] || '').trim().toUpperCase();
+      if (key) mapB[key] = row;
+    });
+
+    const results = [];
+    const seenKeys = new Set();
+
+    state.A.data.forEach(rowA => {
+      const key = String(rowA[codeA] || '').trim().toUpperCase();
+      if (!key) return;
+      seenKeys.add(key);
+
+      const pA = parsePrice(rowA[priceA]);
+      const rowB = mapB[key];
+
+      if (!rowB) {
+        results.push({ code: key, priceA: pA, priceB: NaN, status: 'only-a', rawA: rowA[priceA], rawB: null });
+        return;
+      }
+
+      const pB = parsePrice(rowB[priceB]);
+      const equal = !isNaN(pA) && !isNaN(pB) && Math.abs(pA - pB) < 0.001;
+      results.push({
+        code: key,
+        priceA: pA,
+        priceB: pB,
+        status: equal ? 'ok' : 'diff',
+        rawA: rowA[priceA],
+        rawB: rowB[priceB]
+      });
+    });
+
+    // Items only in B
+    Object.keys(mapB).forEach(key => {
+      if (!seenKeys.has(key)) {
+        const rowB = mapB[key];
+        const pB = parsePrice(rowB[priceB]);
+        results.push({ code: key, priceA: NaN, priceB: pB, status: 'only-b', rawA: null, rawB: rowB[priceB] });
+      }
+    });
+
+    state.results = results;
+    state.filter = 'all';
+    state.search = '';
+    renderResults();
+  }
+
+  function renderResults() {
+    const res = state.results;
+    const counts = {
+      ok: res.filter(r => r.status === 'ok').length,
+      diff: res.filter(r => r.status === 'diff').length,
+      'only-a': res.filter(r => r.status === 'only-a').length,
+      'only-b': res.filter(r => r.status === 'only-b').length,
+    };
+
+    const nameA = state.A.file ? state.A.file.name.replace(/\.[^.]+$/, '') : 'Lista A';
+    const nameB = state.B.file ? state.B.file.name.replace(/\.[^.]+$/, '') : 'Lista B';
+
+    let filtered = res.filter(r => {
+      if (state.filter !== 'all' && r.status !== state.filter) return false;
+      if (state.search && !r.code.includes(state.search.toUpperCase())) return false;
+      return true;
+    });
+
+    const container = document.getElementById('results');
+
+    if (res.length === 0) {
+      container.innerHTML = '<div class="empty-state">No hay resultados para mostrar.</div>';
+      return;
+    }
+
+    const statsHTML = `
+      <div class="stats-bar">
+        <div class="stat-chip ok"><div class="num">${counts.ok}</div><div class="label">Coinciden</div></div>
+        <div class="stat-chip diff"><div class="num">${counts.diff}</div><div class="label">Diferencias</div></div>
+        <div class="stat-chip only-a"><div class="num">${counts['only-a']}</div><div class="label">Solo en A</div></div>
+        <div class="stat-chip only-b"><div class="num">${counts['only-b']}</div><div class="label">Solo en B</div></div>
+      </div>
+    `;
+
+    const filtersHTML = `
+      <div class="filters">
+        ${[['all','Todos'],['ok','Coinciden'],['diff','Diferencias'],['only-a','Solo en A'],['only-b','Solo en B']]
+          .map(([v,l]) => `<button class="filter-btn ${state.filter===v?'active':''}" onclick="setFilter('${v}')">${l} ${v==='all'?'('+res.length+')':''}</button>`).join('')}
+      </div>
+    `;
+
+    const searchHTML = `
+      <div class="search-wrap">
+        <input type="text" placeholder="Buscar por código..." value="${state.search}" oninput="setSearch(this.value)" />
+      </div>
+    `;
+
+    const rowsHTML = filtered.length === 0
+      ? '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:2rem">Sin resultados para este filtro</td></tr>'
+      : filtered.map(r => {
+          const statusLabel = {
+            ok: `<span class="badge badge-ok">✓ Igual</span>`,
+            diff: `<span class="badge badge-diff">✕ Diferencia</span>`,
+            'only-a': `<span class="badge badge-only-a">Solo A</span>`,
+            'only-b': `<span class="badge badge-only-b">Solo B</span>`,
+          }[r.status];
+
+          const pAStr = isNaN(r.priceA) ? '<span class="missing">—</span>' : '$' + r.priceA.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2});
+          const pBStr = isNaN(r.priceB) ? '<span class="missing">—</span>' : '$' + r.priceB.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+          let deltaHTML = '<span class="missing">—</span>';
+          if (r.status === 'diff' && !isNaN(r.priceA) && !isNaN(r.priceB) && r.priceA !== 0) {
+            const pct = ((r.priceB - r.priceA) / r.priceA) * 100;
+            const barW = Math.min(Math.abs(pct) * 1.5, 80);
+            const sign = pct > 0 ? '+' : '';
+            const cls = pct > 0 ? '' : 'positive';
+            deltaHTML = `<div class="delta-bar-wrap">
+              <div class="delta-bar" style="width:${barW}px"></div>
+              <span class="delta-text ${cls}">${sign}${pct.toFixed(1)}%</span>
+            </div>`;
+          } else if (r.status === 'ok') {
+            deltaHTML = '<span class="delta-text equal">0%</span>';
+          }
+
+          return `<tr class="row-${r.status}">
+            <td>${r.code}</td>
+            <td>${statusLabel}</td>
+            <td>${pAStr}</td>
+            <td>${pBStr}</td>
+            <td>${deltaHTML}</td>
+          </tr>`;
+        }).join('');
+
+    container.innerHTML = statsHTML + filtersHTML + searchHTML + `
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Estado</th>
+              <th>${nameA}</th>
+              <th>${nameB}</th>
+              <th>Δ %</th>
+            </tr>
+          </thead>
+          <tbody>${rowsHTML}</tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  function setFilter(f) {
+    state.filter = f;
+    renderResults();
+  }
+
+  function setSearch(val) {
+    state.search = val;
+    renderResults();
+  }
+</script>
+
+</body>
+</html>
