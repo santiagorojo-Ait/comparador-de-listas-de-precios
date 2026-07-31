@@ -8,6 +8,7 @@ import OnlyPanel from './components/OnlyPanel'
 import Spinner from './components/Spinner'
 import HelpTooltip from './components/HelpTooltip'
 import WhatsNewModal from './components/WhatsNewModal'
+import TourOverlay from './components/TourOverlay'
 import { compareFiles } from './utils/compare'
 
 const INITIAL_SIDE = { data: null, headers: [], file: null, codeCol: '', priceCol: '' }
@@ -30,6 +31,7 @@ export default function App() {
   const [onlyB, setOnlyB] = useState([])
   const [hasCompared, setHasCompared] = useState(false)
   const [showWhatsNew, setShowWhatsNew] = useState(false)
+  const [showTour, setShowTour] = useState(false)
   const [comparing, setComparing] = useState(false)
   const [filtering, setFiltering] = useState(false)
   const [filter, setFilter] = useState('all')
@@ -52,7 +54,9 @@ export default function App() {
   useEffect(() => {
     const currentMajor = version.split('.')[0]
     const lastSeen = localStorage.getItem('lastSeenVersion')
-    if (lastSeen !== null && lastSeen !== currentMajor) {
+    if (lastSeen === null) {
+      setShowTour(true)
+    } else if (lastSeen !== currentMajor) {
       setShowWhatsNew(true)
     }
     localStorage.setItem('lastSeenVersion', currentMajor)
@@ -103,6 +107,7 @@ export default function App() {
 
   return (
     <>
+    {showTour && <TourOverlay onFinish={() => setShowTour(false)} />}
     {showWhatsNew && (
       <WhatsNewModal version={version} onClose={() => setShowWhatsNew(false)} />
     )}
@@ -121,11 +126,12 @@ export default function App() {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-4xl mx-auto mb-8">
-        <FilePanel side="A" label={LABEL_A} sideState={sideA} onFileLoad={handleFileLoad} onColChange={handleColChange} />
-        <FilePanel side="B" label={LABEL_B} sideState={sideB} onFileLoad={handleFileLoad} onColChange={handleColChange} />
+        <FilePanel side="A" label={LABEL_A} sideState={sideA} onFileLoad={handleFileLoad} onColChange={handleColChange} data-tour="panel-a" />
+        <FilePanel side="B" label={LABEL_B} sideState={sideB} onFileLoad={handleFileLoad} onColChange={handleColChange} data-tour="panel-b" />
       </div>
 
       <div className="text-center mb-10">
+        <span className="inline-block" data-tour="compare-btn">
         <button
           onClick={compare}
           disabled={!canCompare || comparing}
@@ -140,6 +146,7 @@ export default function App() {
             'Comparar listas →'
           )}
         </button>
+        </span>
         {typeMismatch && (
           <p className="mt-3 text-xs text-warn">
             Las listas deben ser del mismo tipo — ambas PDF o ambas Excel/CSV.

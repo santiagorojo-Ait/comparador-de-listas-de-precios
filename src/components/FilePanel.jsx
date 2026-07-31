@@ -35,7 +35,7 @@ function FileAlert({ status }) {
   )
 }
 
-export default function FilePanel({ side, label, sideState, onFileLoad, onColChange }) {
+export default function FilePanel({ side, label, sideState, onFileLoad, onColChange, ...rest }) {
   const inputRef = useRef()
   const [dragging, setDragging] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -90,7 +90,7 @@ export default function FilePanel({ side, label, sideState, onFileLoad, onColCha
   ].join(' ')
 
   return (
-    <div className="bg-surface border border-app-border rounded-xl p-6">
+    <div className="bg-surface border border-app-border rounded-xl p-6" {...rest}>
       <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-4">{label}</h2>
 
       <div
