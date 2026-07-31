@@ -27,6 +27,8 @@ Herramienta web para comparar una lista de precios de proveedores (drive) contra
 - Loader al cambiar filtros para listas grandes
 - Normalización de precios: acepta formato local (coma decimal, símbolo $)
 - Ícono de ayuda (?) con instrucciones de uso en hover
+- Badge de versión (vN) fijo en la esquina superior izquierda
+- **Modal de novedades**: aparece automáticamente al detectar que el usuario regresa con una versión nueva; lista los cambios de forma clara; no se muestra en la primera visita
 - Diseño dark mode
 
 ## Stack técnico
@@ -84,6 +86,7 @@ El output queda en la carpeta `dist/`, lista para deployar en cualquier hosting 
     │   ├── FilterBar.jsx       # Filtros por estado
     │   ├── ResultsTable.jsx    # Tabla paginada de resultados
     │   ├── OnlyPanel.jsx       # Panel de artículos sin coincidencia entre listas
+    │   ├── WhatsNewModal.jsx   # Modal de novedades al detectar nueva versión
     │   └── Spinner.jsx         # Componente de carga reutilizable
     └── utils/
         ├── parseFile.js        # Lectura de xlsx/csv con detección inteligente de cabeceras
@@ -160,6 +163,17 @@ Herramienta de uso interno para comparar listas de precios de proveedores en el 
 - Si solo una lista tiene faltantes: panel simple con encabezado y conteo.
 - Si ambas listas tienen faltantes: tabs con nombre de cada lista y badge con cantidad.
 - Cada tab muestra una tabla paginada (10 por página) con código y precio de los artículos huérfanos.
+
+**Badge de versión e indicador visual**
+- Se muestra el número de versión mayor (v1, v2, …) en la esquina superior izquierda, fijo sobre todo el contenido.
+- La versión se lee directamente del campo `version` de `package.json` mediante import JSON nativo de Vite.
+
+**Modal de novedades al actualizar versión**
+- Al iniciar la app, se compara la versión major actual con la última registrada en `localStorage`.
+- Si el usuario ya usó la app antes y la versión cambió, se muestra un modal con la lista de cambios de la versión nueva.
+- En la primera visita nunca se muestra (no hay versión previa registrada).
+- El modal se cierra con el botón "Entendido", la × o haciendo clic fuera del panel.
+- Los release notes por versión están definidos en `WhatsNewModal.jsx` y se extienden fácilmente para futuras versiones.
 
 **Validación de tipo de archivo entre paneles**
 - Se puede cargar cualquier archivo válido en cualquier momento, sin restricción por lo que hay en el otro panel.
