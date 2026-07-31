@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
+import { version } from '../package.json'
 import FilePanel from './components/FilePanel'
 import StatsBar from './components/StatsBar'
 import FilterBar from './components/FilterBar'
@@ -73,6 +74,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-bg text-prose font-sans px-6 py-8 pb-16">
+      <span className="fixed top-4 left-4 z-50 text-xs text-muted border border-app-border rounded-full px-2 py-0.5 bg-surface select-none">
+        v{version.split('.')[0]}
+      </span>
       <HelpTooltip />
       <header className="text-center mb-10">
         <h1 className="text-2xl font-bold tracking-tight text-accent">
