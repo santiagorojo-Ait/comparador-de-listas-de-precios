@@ -9,6 +9,7 @@ import Spinner from './components/Spinner'
 import HelpTooltip from './components/HelpTooltip'
 import WhatsNewModal from './components/WhatsNewModal'
 import TourOverlay from './components/TourOverlay'
+import DocsModal from './components/DocsModal'
 import { compareFiles } from './utils/compare'
 
 const INITIAL_SIDE = { data: null, headers: [], file: null, codeCol: '', priceCol: '' }
@@ -32,6 +33,7 @@ export default function App() {
   const [hasCompared, setHasCompared] = useState(false)
   const [showWhatsNew, setShowWhatsNew] = useState(false)
   const [showTour, setShowTour] = useState(false)
+  const [showDocs, setShowDocs] = useState(false)
   const [comparing, setComparing] = useState(false)
   const [filtering, setFiltering] = useState(false)
   const [filter, setFilter] = useState('all')
@@ -111,10 +113,19 @@ export default function App() {
     {showWhatsNew && (
       <WhatsNewModal version={version} onClose={() => setShowWhatsNew(false)} />
     )}
+    {showDocs && <DocsModal onClose={() => setShowDocs(false)} />}
     <div className="min-h-screen bg-bg text-prose font-sans px-6 py-8 pb-16">
-      <span className="fixed top-4 left-4 z-50 text-xs text-muted border border-app-border rounded-full px-2 py-0.5 bg-surface select-none">
-        v{version.split('.')[0]}
-      </span>
+      <div className="fixed top-4 left-4 z-50 flex items-center gap-2">
+        <span className="text-xs text-muted border border-app-border rounded-full px-2 py-0.5 bg-surface select-none">
+          v{version.split('.')[0]}
+        </span>
+        <button
+          onClick={() => setShowDocs(true)}
+          className="text-xs text-muted border border-app-border rounded-full px-2 py-0.5 bg-surface hover:border-accent hover:text-accent transition-colors"
+        >
+          Docs
+        </button>
+      </div>
       <HelpTooltip />
       <header className="text-center mb-10">
         <h1 className="text-2xl font-bold tracking-tight text-accent">
