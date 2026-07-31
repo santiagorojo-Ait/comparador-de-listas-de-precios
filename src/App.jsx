@@ -7,6 +7,7 @@ import ResultsTable from './components/ResultsTable'
 import OnlyPanel from './components/OnlyPanel'
 import Spinner from './components/Spinner'
 import HelpTooltip from './components/HelpTooltip'
+import WhatsNewModal from './components/WhatsNewModal'
 import { compareFiles } from './utils/compare'
 
 const INITIAL_SIDE = { data: null, headers: [], file: null, codeCol: '', priceCol: '' }
@@ -28,6 +29,7 @@ export default function App() {
   const [onlyA, setOnlyA] = useState([])
   const [onlyB, setOnlyB] = useState([])
   const [hasCompared, setHasCompared] = useState(false)
+  const [showWhatsNew, setShowWhatsNew] = useState(false)
   const [comparing, setComparing] = useState(false)
   const [filtering, setFiltering] = useState(false)
   const [filter, setFilter] = useState('all')
@@ -46,6 +48,15 @@ export default function App() {
     }, 0)
     return () => clearTimeout(timer)
   }, [filter, search, results])
+
+  useEffect(() => {
+    const currentMajor = version.split('.')[0]
+    const lastSeen = localStorage.getItem('lastSeenVersion')
+    if (lastSeen !== null && lastSeen !== currentMajor) {
+      setShowWhatsNew(true)
+    }
+    localStorage.setItem('lastSeenVersion', currentMajor)
+  }, [])
 
   const handleFileLoad = useCallback((side, file, data, headers, autoDetected) => {
     const setter = side === 'A' ? setSideA : setSideB
@@ -91,6 +102,10 @@ export default function App() {
   const nameB = sideB.file ? sideB.file.name.replace(/\.[^.]+$/, '') : LABEL_B
 
   return (
+    <>
+    {showWhatsNew && (
+      <WhatsNewModal version={version} onClose={() => setShowWhatsNew(false)} />
+    )}
     <div className="min-h-screen bg-bg text-prose font-sans px-6 py-8 pb-16">
       <span className="fixed top-4 left-4 z-50 text-xs text-muted border border-app-border rounded-full px-2 py-0.5 bg-surface select-none">
         v{version.split('.')[0]}
@@ -167,5 +182,6 @@ export default function App() {
         </div>
       )}
     </div>
+    </>
   )
 }
