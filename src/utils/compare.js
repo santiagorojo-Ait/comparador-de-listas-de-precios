@@ -21,7 +21,7 @@ function cleanData(data, codeCol) {
 function parsePrice(val) {
   if (val === null || val === undefined || val === '') return NaN
   const str = String(val).replace(/[^\d.,\-]/g, '').replace(',', '.')
-  return parseFloat(str)
+  return Math.round(parseFloat(str))
 }
 
 function samplePercent(data, pct) {
