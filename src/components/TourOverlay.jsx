@@ -9,19 +9,19 @@ const STEPS = [
   {
     target: '[data-tour="panel-a"]',
     title: 'Lista del proveedor',
-    body: 'Arrastrá o hacé clic para subir el archivo (.xlsx, .xls o .csv). Una vez cargado, elegí qué columna es el código de artículo y cuál el precio.',
+    body: 'Arrastrá o hacé clic para subir el archivo (.xlsx, .xls, .csv o .pdf). Una vez cargado, elegí qué columna es el código de artículo y cuál el precio.',
     position: 'bottom',
   },
   {
     target: '[data-tour="panel-b"]',
     title: 'Lista del cliente',
-    body: 'Subí aquí el segundo archivo. Ambas listas deben ser del mismo tipo de archivo para habilitar la comparación.',
+    body: 'Subí aquí el segundo archivo. Ambas listas deben ser del mismo tipo (Excel/CSV o PDF) para habilitar la comparación.',
     position: 'bottom',
   },
   {
     target: '[data-tour="compare-btn"]',
     title: 'Comparar listas',
-    body: 'Cuando ambas listas estén cargadas y las columnas seleccionadas, este botón se habilita. El resultado muestra coincidencias y diferencias de precio artículo por artículo.',
+    body: 'Cuando ambas listas estén cargadas y las columnas seleccionadas, este botón se habilita. El resultado muestra coincidencias, diferencias de precio y artículos que solo existen en una de las listas.',
     position: 'bottom',
   },
 ]
@@ -82,10 +82,12 @@ export default function TourOverlay({ onFinish }) {
 
   return (
     <>
+      {/* Overlay sin spotlight (paso de bienvenida) */}
       {!rect && (
         <div className="fixed inset-0 z-40 bg-black/75" />
       )}
 
+      {/* Spotlight con box-shadow como overlay */}
       {rect && (
         <div
           className="fixed z-40 rounded-xl"
@@ -101,10 +103,12 @@ export default function TourOverlay({ onFinish }) {
         />
       )}
 
+      {/* Tooltip */}
       <div
         className="fixed z-50 bg-surface border border-app-border rounded-2xl shadow-2xl p-5"
         style={{ width: TW, ...tooltipStyle }}
       >
+        {/* Indicadores de progreso */}
         <div className="flex items-center gap-1.5 mb-3">
           {STEPS.map((_, i) => (
             <span

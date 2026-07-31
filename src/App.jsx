@@ -4,8 +4,10 @@ import FilePanel from './components/FilePanel'
 import StatsBar from './components/StatsBar'
 import FilterBar from './components/FilterBar'
 import ResultsTable from './components/ResultsTable'
+import OnlyPanel from './components/OnlyPanel'
 import Spinner from './components/Spinner'
 import HelpTooltip from './components/HelpTooltip'
+import WhatsNewModal from './components/WhatsNewModal'
 import TourOverlay from './components/TourOverlay'
 import { compareFiles } from './utils/compare'
 
@@ -13,12 +15,22 @@ const INITIAL_SIDE = { data: null, headers: [], file: null, codeCol: '', priceCo
 const LABEL_A = 'Lista en drive de proveedores'
 const LABEL_B = 'Lista del cliente'
 
+function getCategory(file) {
+  if (!file) return null
+  const ext = '.' + file.name.split('.').pop().toLowerCase()
+  if (ext === '.pdf') return 'pdf'
+  return 'spreadsheet'
+}
+
 export default function App() {
   const [sideA, setSideA] = useState(INITIAL_SIDE)
   const [sideB, setSideB] = useState(INITIAL_SIDE)
   const [results, setResults] = useState([])
   const [filteredResults, setFilteredResults] = useState([])
+  const [onlyA, setOnlyA] = useState([])
+  const [onlyB, setOnlyB] = useState([])
   const [hasCompared, setHasCompared] = useState(false)
+  const [showWhatsNew, setShowWhatsNew] = useState(false)
   const [showTour, setShowTour] = useState(false)
   const [comparing, setComparing] = useState(false)
   const [filtering, setFiltering] = useState(false)
@@ -42,7 +54,11 @@ export default function App() {
   useEffect(() => {
     const currentMajor = version.split('.')[0]
     const lastSeen = localStorage.getItem('lastSeenVersion')
-    if (lastSeen === null) setShowTour(true)
+    if (lastSeen === null) {
+      setShowTour(true)
+    } else if (lastSeen !== currentMajor) {
+      setShowWhatsNew(true)
+    }
     localStorage.setItem('lastSeenVersion', currentMajor)
   }, [])
 
@@ -58,7 +74,12 @@ export default function App() {
     setHasCompared(false)
   }, [])
 
+  const typeMismatch =
+    sideA.file && sideB.file &&
+    getCategory(sideA.file) !== getCategory(sideB.file)
+
   const canCompare =
+    !typeMismatch &&
     sideA.data && sideB.data &&
     sideA.codeCol && sideA.priceCol &&
     sideB.codeCol && sideB.priceCol
@@ -66,7 +87,10 @@ export default function App() {
   const compare = async () => {
     setComparing(true)
     await new Promise(resolve => setTimeout(resolve, 30))
-    setResults(compareFiles(sideA, sideB))
+    const { results, onlyA, onlyB } = compareFiles(sideA, sideB)
+    setResults(results)
+    setOnlyA(onlyA)
+    setOnlyB(onlyB)
     setHasCompared(true)
     setFilter('all')
     setSearch('')
@@ -84,6 +108,9 @@ export default function App() {
   return (
     <>
     {showTour && <TourOverlay onFinish={() => setShowTour(false)} />}
+    {showWhatsNew && (
+      <WhatsNewModal version={version} onClose={() => setShowWhatsNew(false)} />
+    )}
     <div className="min-h-screen bg-bg text-prose font-sans px-6 py-8 pb-16">
       <span className="fixed top-4 left-4 z-50 text-xs text-muted border border-app-border rounded-full px-2 py-0.5 bg-surface select-none">
         v{version.split('.')[0]}
@@ -120,6 +147,18 @@ export default function App() {
           )}
         </button>
         </span>
+        {typeMismatch && (
+          <p className="mt-3 text-xs text-warn">
+            Las listas deben ser del mismo tipo — ambas PDF o ambas Excel/CSV.
+          </p>
+        )}
+        {!typeMismatch && !canCompare && (sideA.file || sideB.file) && (
+          <p className="mt-3 text-xs text-muted">
+            {!sideA.file || !sideB.file
+              ? 'Subí un archivo en cada panel para continuar.'
+              : 'Seleccioná las columnas de código y precio en ambas listas.'}
+          </p>
+        )}
       </div>
 
       {hasCompared && results.length > 0 && (
@@ -143,6 +182,10 @@ export default function App() {
             )}
             <ResultsTable rows={filteredResults} nameA={nameA} nameB={nameB} />
           </div>
+
+          {(onlyA.length > 0 || onlyB.length > 0) && (
+            <OnlyPanel onlyA={onlyA} onlyB={onlyB} nameA={nameA} nameB={nameB} />
+          )}
         </div>
       )}
     </div>

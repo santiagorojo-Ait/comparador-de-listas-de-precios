@@ -4,23 +4,67 @@ import Spinner from './Spinner'
 
 const CODE_KEYWORDS = ['codigo', 'code', 'cod', 'articulo', 'id', 'sku', 'referencia', 'ref']
 const PRICE_KEYWORDS = ['precio', 'price', 'importe', 'valor', 'costo', 'pvp', 'monto']
+const VALID_EXTS = ['.xlsx', '.xls', '.csv', '.pdf']
+
+function getCategory(ext) {
+  if (ext === '.pdf') return 'pdf'
+  if (['.xlsx', '.xls', '.csv'].includes(ext)) return 'spreadsheet'
+  return null
+}
 
 function autoDetect(headers, keywords) {
-  return headers.find(h => keywords.some(k => h.toLowerCase().includes(k))) || ''
+  // Only match short header names (real column labels, not paragraph text)
+  return headers.find(h =>
+    h.length <= 40 && keywords.some(k => h.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').includes(k))
+  ) || ''
+}
+
+function FileAlert({ status }) {
+  if (!status) return null
+  const isError = status.type === 'error'
+  return (
+    <div className={[
+      'mt-3 rounded-lg px-3 py-2 text-xs flex items-start gap-2 border',
+      isError
+        ? 'bg-danger-dim/40 border-danger/40 text-danger'
+        : 'bg-warn-dim/40 border-warn/40 text-warn',
+    ].join(' ')}>
+      <span className="font-bold shrink-0 mt-px">{isError ? '✕' : '!'}</span>
+      <span>{status.message}</span>
+    </div>
+  )
 }
 
 export default function FilePanel({ side, label, sideState, onFileLoad, onColChange, ...rest }) {
   const inputRef = useRef()
   const [dragging, setDragging] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [fileStatus, setFileStatus] = useState(null)
 
   const handleLoad = (file) => {
+    const ext = '.' + file.name.split('.').pop().toLowerCase()
+    if (!VALID_EXTS.includes(ext)) {
+      setFileStatus({
+        type: 'error',
+        message: `Formato no soportado: "${ext}". Usá .xlsx, .xls, .csv o .pdf.`,
+      })
+      return
+    }
+
+    setFileStatus(null)
     setLoading(true)
-    parseFile(file, (data, headers) => {
-      onFileLoad(side, file, data, headers, {
+    parseFile(file, (data, headers, status) => {
+      const detected = {
         codeCol: autoDetect(headers, CODE_KEYWORDS),
         priceCol: autoDetect(headers, PRICE_KEYWORDS),
-      })
+      }
+      onFileLoad(side, file, data, headers, detected)
+
+      const noColumns = data.length > 0 && !detected.codeCol && !detected.priceCol
+      const finalStatus = status ?? (noColumns
+        ? { type: 'warn', message: 'No se detectaron columnas de código ni precio. El archivo puede no ser una lista de precios.' }
+        : null)
+      setFileStatus(finalStatus)
       setLoading(false)
     })
   }
@@ -32,12 +76,17 @@ export default function FilePanel({ side, label, sideState, onFileLoad, onColCha
     if (file) handleLoad(file)
   }
 
+  const hasError = fileStatus?.type === 'error'
+  const hasWarn  = fileStatus?.type === 'warn'
+
   const dropClass = [
     'border-2 border-dashed rounded-lg p-8 text-center transition-all',
     loading ? 'border-accent/50 cursor-wait' : 'cursor-pointer',
     !loading && dragging ? 'border-accent bg-accent/5' : '',
-    !loading && !dragging ? 'border-app-border hover:border-accent hover:bg-accent/5' : '',
-    sideState.file && !loading ? '!border-solid !border-accent' : '',
+    !loading && !dragging && hasError ? '!border-solid !border-danger' : '',
+    !loading && !dragging && hasWarn  ? '!border-solid !border-warn'   : '',
+    !loading && !dragging && !hasError && !hasWarn && sideState.file ? '!border-solid !border-accent' : '',
+    !loading && !dragging && !hasError && !hasWarn && !sideState.file ? 'border-app-border hover:border-accent hover:bg-accent/5' : '',
   ].join(' ')
 
   return (
@@ -60,22 +109,27 @@ export default function FilePanel({ side, label, sideState, onFileLoad, onColCha
           <>
             <div className="text-3xl mb-2">📂</div>
             {sideState.file ? (
-              <p className="text-accent font-semibold text-sm">{sideState.file.name}</p>
+              <p className={[
+                'font-semibold text-sm',
+                hasError ? 'text-danger' : hasWarn ? 'text-warn' : 'text-accent',
+              ].join(' ')}>{sideState.file.name}</p>
             ) : (
               <>
                 <p className="text-muted text-sm">Arrastrá o hacé clic para subir</p>
-                <p className="text-muted text-xs mt-1">.xlsx, .xls, .csv</p>
+                <p className="text-muted text-xs mt-1">.xlsx, .xls, .csv, .pdf</p>
               </>
             )}
           </>
         )}
       </div>
 
+      <FileAlert status={fileStatus} />
+
       <input
         ref={inputRef}
         type="file"
         className="hidden"
-        accept=".xlsx,.xls,.csv"
+        accept=".xlsx,.xls,.csv,.pdf"
         onChange={e => e.target.files[0] && handleLoad(e.target.files[0])}
       />
 
@@ -83,9 +137,9 @@ export default function FilePanel({ side, label, sideState, onFileLoad, onColCha
         {[
           ['codeCol', 'Columna de Código'],
           ['priceCol', 'Columna de Precio'],
-        ].map(([field, label]) => (
+        ].map(([field, lbl]) => (
           <div key={field}>
-            <label className="block text-xs text-muted mb-1">{label}</label>
+            <label className="block text-xs text-muted mb-1">{lbl}</label>
             <select
               value={sideState[field]}
               disabled={!sideState.data}

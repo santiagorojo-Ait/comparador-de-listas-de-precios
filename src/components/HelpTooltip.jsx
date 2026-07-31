@@ -13,7 +13,7 @@ export default function HelpTooltip() {
           <li>Revisá los resultados: coincidencias y diferencias de precio</li>
         </ol>
         <p className="text-xs text-muted mt-3 pt-3 border-t border-app-border">
-          La comparación se hace sobre una muestra aleatoria de 20–30 artículos, excluyendo los primeros 10 de cada lista y sin artículos consecutivos.
+          La comparación se hace sobre el 85% de los artículos de la lista, seleccionados aleatoriamente.
         </p>
       </div>
     </div>
