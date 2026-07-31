@@ -29,6 +29,7 @@ Herramienta web para comparar una lista de precios de proveedores (drive) contra
 - Ícono de ayuda (?) con instrucciones de uso en hover
 - Badge de versión (vN) fijo en la esquina superior izquierda
 - **Modal de novedades**: aparece automáticamente al detectar que el usuario regresa con una versión nueva; lista los cambios de forma clara; no se muestra en la primera visita
+- **Visita guiada** (tour) para usuarios nuevos: 4 pasos con spotlight sobre cada elemento clave; incluye navegación Anterior / Siguiente y opción de omitir en cualquier momento
 - Diseño dark mode
 
 ## Stack técnico
@@ -87,6 +88,7 @@ El output queda en la carpeta `dist/`, lista para deployar en cualquier hosting 
     │   ├── ResultsTable.jsx    # Tabla paginada de resultados
     │   ├── OnlyPanel.jsx       # Panel de artículos sin coincidencia entre listas
     │   ├── WhatsNewModal.jsx   # Modal de novedades al detectar nueva versión
+    │   ├── TourOverlay.jsx     # Visita guiada con spotlight para usuarios nuevos
     │   └── Spinner.jsx         # Componente de carga reutilizable
     └── utils/
         ├── parseFile.js        # Lectura de xlsx/csv con detección inteligente de cabeceras
@@ -174,6 +176,14 @@ Herramienta de uso interno para comparar listas de precios de proveedores en el 
 - En la primera visita nunca se muestra (no hay versión previa registrada).
 - El modal se cierra con el botón "Entendido", la × o haciendo clic fuera del panel.
 - Los release notes por versión están definidos en `WhatsNewModal.jsx` y se extienden fácilmente para futuras versiones.
+
+**Visita guiada para usuarios nuevos**
+- Al detectar la primera visita (`localStorage.lastSeenVersion` ausente), se muestra un tour interactivo de 4 pasos.
+- Cada paso resalta con spotlight (recorte oscuro) el elemento relevante: bienvenida, panel del proveedor, panel del cliente, botón comparar.
+- El tooltip se posiciona automáticamente junto al elemento destacado y se clampa al viewport para no salir de pantalla.
+- Navegación con botones "← Atrás", "Siguiente →" / "Finalizar" e indicadores de progreso (puntos).
+- Se puede omitir en cualquier momento con "Omitir tour".
+- Los pasos y textos están definidos en `TourOverlay.jsx` y son fácilmente extensibles.
 
 **Validación de tipo de archivo entre paneles**
 - Se puede cargar cualquier archivo válido en cualquier momento, sin restricción por lo que hay en el otro panel.

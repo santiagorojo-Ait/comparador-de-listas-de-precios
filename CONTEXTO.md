@@ -36,6 +36,7 @@ El proyecto está migrado a React + Vite + Tailwind CSS y es funcional. Incluye:
 - Ícono "?" en esquina superior derecha con instrucciones de uso en hover
 - Badge de versión (vN) en esquina superior izquierda, fijo sobre el contenido
 - Modal de novedades ("¿Qué hay de nuevo?"): aparece automáticamente cuando el usuario vuelve con una versión nueva (compara `localStorage.lastSeenVersion` con la versión major actual); no se muestra en la primera visita; se cierra con botón, ×, o click fuera
+- Visita guiada para usuarios nuevos: tour de 4 pasos con spotlight (box-shadow) sobre cada elemento relevante — bienvenida, panel A, panel B, botón comparar; incluye indicadores de progreso, botones Atrás / Siguiente / Omitir; el tooltip se posiciona automáticamente y se clampa al viewport; solo se muestra en la primera visita (`localStorage.lastSeenVersion === null`)
 - Diseño dark mode (fondo azul-pizarra, acento verde-lima, tipografía monoespaciada para códigos)
 
 ## Stack técnico
@@ -92,6 +93,7 @@ El proyecto está migrado a React + Vite + Tailwind CSS y es funcional. Incluye:
     │   ├── ResultsTable.jsx ← tabla paginada con badges y barra Δ%
     │   ├── OnlyPanel.jsx    ← panel de artículos sin coincidencia entre listas
     │   ├── WhatsNewModal.jsx← modal de novedades al detectar nueva versión
+    │   ├── TourOverlay.jsx  ← visita guiada con spotlight para usuarios nuevos
     │   └── Spinner.jsx      ← spinner reutilizable (sm / md / lg)
     └── utils/
         ├── parseFile.js     ← lectura de xlsx/csv con detección inteligente de cabeceras
