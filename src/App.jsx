@@ -6,6 +6,7 @@ import FilterBar from './components/FilterBar'
 import ResultsTable from './components/ResultsTable'
 import Spinner from './components/Spinner'
 import HelpTooltip from './components/HelpTooltip'
+import TourOverlay from './components/TourOverlay'
 import { compareFiles } from './utils/compare'
 
 const INITIAL_SIDE = { data: null, headers: [], file: null, codeCol: '', priceCol: '' }
@@ -18,6 +19,7 @@ export default function App() {
   const [results, setResults] = useState([])
   const [filteredResults, setFilteredResults] = useState([])
   const [hasCompared, setHasCompared] = useState(false)
+  const [showTour, setShowTour] = useState(false)
   const [comparing, setComparing] = useState(false)
   const [filtering, setFiltering] = useState(false)
   const [filter, setFilter] = useState('all')
@@ -36,6 +38,13 @@ export default function App() {
     }, 0)
     return () => clearTimeout(timer)
   }, [filter, search, results])
+
+  useEffect(() => {
+    const currentMajor = version.split('.')[0]
+    const lastSeen = localStorage.getItem('lastSeenVersion')
+    if (lastSeen === null) setShowTour(true)
+    localStorage.setItem('lastSeenVersion', currentMajor)
+  }, [])
 
   const handleFileLoad = useCallback((side, file, data, headers, autoDetected) => {
     const setter = side === 'A' ? setSideA : setSideB
@@ -73,6 +82,8 @@ export default function App() {
   const nameB = sideB.file ? sideB.file.name.replace(/\.[^.]+$/, '') : LABEL_B
 
   return (
+    <>
+    {showTour && <TourOverlay onFinish={() => setShowTour(false)} />}
     <div className="min-h-screen bg-bg text-prose font-sans px-6 py-8 pb-16">
       <span className="fixed top-4 left-4 z-50 text-xs text-muted border border-app-border rounded-full px-2 py-0.5 bg-surface select-none">
         v{version.split('.')[0]}
@@ -88,11 +99,12 @@ export default function App() {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-4xl mx-auto mb-8">
-        <FilePanel side="A" label={LABEL_A} sideState={sideA} onFileLoad={handleFileLoad} onColChange={handleColChange} />
-        <FilePanel side="B" label={LABEL_B} sideState={sideB} onFileLoad={handleFileLoad} onColChange={handleColChange} />
+        <FilePanel side="A" label={LABEL_A} sideState={sideA} onFileLoad={handleFileLoad} onColChange={handleColChange} data-tour="panel-a" />
+        <FilePanel side="B" label={LABEL_B} sideState={sideB} onFileLoad={handleFileLoad} onColChange={handleColChange} data-tour="panel-b" />
       </div>
 
       <div className="text-center mb-10">
+        <span className="inline-block" data-tour="compare-btn">
         <button
           onClick={compare}
           disabled={!canCompare || comparing}
@@ -107,6 +119,7 @@ export default function App() {
             'Comparar listas →'
           )}
         </button>
+        </span>
       </div>
 
       {hasCompared && results.length > 0 && (
@@ -133,5 +146,6 @@ export default function App() {
         </div>
       )}
     </div>
+    </>
   )
 }
