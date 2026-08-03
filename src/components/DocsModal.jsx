@@ -39,7 +39,11 @@ const FAQS = [
   },
   {
     q: '¿Los precios con coma decimal funcionan?',
-    a: 'Sí. Se aceptan precios en formato local (coma decimal, símbolo $) como $1.234,56.',
+    a: 'Sí. Se aceptan precios en formato local (coma decimal, símbolo $) como $1.234,56. Luego se redondean automáticamente antes de comparar.',
+  },
+  {
+    q: '¿Por qué se redondean los precios?',
+    a: 'Para evitar falsos positivos por diferencias de centavos entre archivos generados en distintos momentos o sistemas. La comparación se hace sobre el precio entero más cercano: menos de $0,50 redondea abajo, $0,50 o más redondea arriba.',
   },
 ]
 
@@ -126,6 +130,11 @@ export default function DocsModal({ onClose }) {
           <Callout type="warn" label="Si el botón no se habilita">
             Un mensaje debajo del botón indica exactamente qué falta: subir un archivo, tipos distintos entre paneles, o columnas sin seleccionar.
           </Callout>
+          <div className="mt-4">
+            <Callout type="tip" label="Redondeo de precios">
+              Antes de comparar, todos los precios se redondean al peso entero más cercano: menos de $0,50 redondea abajo, $0,50 o más redondea arriba. Esto evita falsos positivos por diferencias mínimas de centavos.
+            </Callout>
+          </div>
         </section>
 
         {/* Resultados */}
