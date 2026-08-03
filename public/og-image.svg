@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0B1120"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+    <linearGradient id="cardGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1E293B"/>
+      <stop offset="100%" stop-color="#172032"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <filter id="softglow">
+      <feGaussianBlur stdDeviation="40" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Ambient glow top-right -->
+  <ellipse cx="980" cy="80" rx="320" ry="180" fill="#A3E635" opacity="0.04" filter="url(#softglow)"/>
+  <!-- Ambient glow bottom-left -->
+  <ellipse cx="200" cy="560" rx="280" ry="140" fill="#A3E635" opacity="0.03" filter="url(#softglow)"/>
+
+  <!-- Left content -->
+  <!-- Eyebrow -->
+  <rect x="72" y="148" width="6" height="22" rx="3" fill="#A3E635"/>
+  <text x="90" y="165" font-family="system-ui,-apple-system,sans-serif" font-size="13" font-weight="700" fill="#A3E635" letter-spacing="2" text-transform="uppercase">HERRAMIENTA INTERNA · AUTOPARTES</text>
+
+  <!-- Main title -->
+  <text x="72" y="240" font-family="system-ui,-apple-system,sans-serif" font-size="58" font-weight="800" fill="#F1F5F9" letter-spacing="-2">Comparador de</text>
+  <text x="72" y="308" font-family="system-ui,-apple-system,sans-serif" font-size="58" font-weight="800" fill="#A3E635" letter-spacing="-2">Listas de Precios</text>
+
+  <!-- Description -->
+  <text x="72" y="364" font-family="system-ui,-apple-system,sans-serif" font-size="20" fill="#64748B">Cruzá precios artículo por artículo entre el proveedor</text>
+  <text x="72" y="392" font-family="system-ui,-apple-system,sans-serif" font-size="20" fill="#64748B">y el cliente. En segundos, sin Excel.</text>
+
+  <!-- Feature chips -->
+  <rect x="72" y="428" width="130" height="32" rx="16" fill="#1E293B" stroke="#334155" stroke-width="1"/>
+  <circle cx="96" cy="444" r="4" fill="#A3E635"/>
+  <text x="108" y="449" font-family="system-ui,-apple-system,sans-serif" font-size="13" fill="#94A3B8">Excel y PDF</text>
+
+  <rect x="214" y="428" width="148" height="32" rx="16" fill="#1E293B" stroke="#334155" stroke-width="1"/>
+  <circle cx="238" cy="444" r="4" fill="#A3E635"/>
+  <text x="250" y="449" font-family="system-ui,-apple-system,sans-serif" font-size="13" fill="#94A3B8">Sin instalación</text>
+
+  <rect x="374" y="428" width="136" height="32" rx="16" fill="#1E293B" stroke="#334155" stroke-width="1"/>
+  <circle cx="398" cy="444" r="4" fill="#A3E635"/>
+  <text x="410" y="449" font-family="system-ui,-apple-system,sans-serif" font-size="13" fill="#94A3B8">100% local</text>
+
+  <!-- Right side: UI preview -->
+  <!-- Container shadow -->
+  <rect x="640" y="60" width="500" height="510" rx="16" fill="#A3E635" opacity="0.03"/>
+
+  <!-- Panel A -->
+  <rect x="650" y="72" width="228" height="210" rx="12" fill="url(#cardGrad)" stroke="#1E3A5F" stroke-width="1"/>
+  <text x="670" y="104" font-family="system-ui,-apple-system,sans-serif" font-size="9" font-weight="700" fill="#475569" letter-spacing="1.5">LISTA DEL PROVEEDOR</text>
+  <!-- Drop zone -->
+  <rect x="666" y="114" width="196" height="96" rx="8" fill="none" stroke="#334155" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <rect x="738" y="134" width="52" height="42" rx="6" fill="#1E293B"/>
+  <text x="764" y="161" font-family="system-ui,-apple-system,sans-serif" font-size="18" fill="#A3E635" text-anchor="middle">📂</text>
+  <!-- File loaded -->
+  <text x="764" y="224" font-family="system-ui,-apple-system,sans-serif" font-size="10" fill="#A3E635" text-anchor="middle">lista_liquimoly_jul.xlsx</text>
+  <!-- Column selectors -->
+  <rect x="666" y="234" width="92" height="24" rx="5" fill="#0F172A" stroke="#334155" stroke-width="1"/>
+  <text x="674" y="249" font-family="system-ui,-apple-system,sans-serif" font-size="9" fill="#64748B">CODIGO</text>
+  <rect x="770" y="234" width="92" height="24" rx="5" fill="#0F172A" stroke="#334155" stroke-width="1"/>
+  <text x="778" y="249" font-family="system-ui,-apple-system,sans-serif" font-size="9" fill="#64748B">PRECIO LISTA</text>
+
+  <!-- Panel B -->
+  <rect x="892" y="72" width="228" height="210" rx="12" fill="url(#cardGrad)" stroke="#1E3A5F" stroke-width="1"/>
+  <text x="912" y="104" font-family="system-ui,-apple-system,sans-serif" font-size="9" font-weight="700" fill="#475569" letter-spacing="1.5">LISTA DEL CLIENTE</text>
+  <rect x="908" y="114" width="196" height="96" rx="8" fill="none" stroke="#334155" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <rect x="980" y="134" width="52" height="42" rx="6" fill="#1E293B"/>
+  <text x="1006" y="161" font-family="system-ui,-apple-system,sans-serif" font-size="18" fill="#A3E635" text-anchor="middle">📂</text>
+  <text x="1006" y="224" font-family="system-ui,-apple-system,sans-serif" font-size="10" fill="#A3E635" text-anchor="middle">precios_cliente.pdf</text>
+  <rect x="908" y="234" width="92" height="24" rx="5" fill="#0F172A" stroke="#334155" stroke-width="1"/>
+  <text x="916" y="249" font-family="system-ui,-apple-system,sans-serif" font-size="9" fill="#64748B">Artículo</text>
+  <rect x="1012" y="234" width="92" height="24" rx="5" fill="#0F172A" stroke="#334155" stroke-width="1"/>
+  <text x="1020" y="249" font-family="system-ui,-apple-system,sans-serif" font-size="9" fill="#64748B">Precio</text>
+
+  <!-- Compare button -->
+  <rect x="762" y="300" width="196" height="40" rx="8" fill="#A3E635"/>
+  <text x="860" y="325" font-family="system-ui,-apple-system,sans-serif" font-size="14" font-weight="700" fill="#0B1120" text-anchor="middle">Comparar listas →</text>
+
+  <!-- Results table -->
+  <rect x="650" y="358" width="470" height="188" rx="12" fill="url(#cardGrad)" stroke="#1E3A5F" stroke-width="1"/>
+  <!-- Header -->
+  <rect x="650" y="358" width="470" height="28" rx="12" fill="#0F172A"/>
+  <rect x="650" y="370" width="470" height="16" fill="#0F172A"/>
+  <text x="670" y="377" font-family="system-ui,-apple-system,sans-serif" font-size="8" font-weight="700" fill="#475569" letter-spacing="1">ESTADO</text>
+  <text x="740" y="377" font-family="system-ui,-apple-system,sans-serif" font-size="8" font-weight="700" fill="#475569" letter-spacing="1">CÓDIGO</text>
+  <text x="840" y="377" font-family="system-ui,-apple-system,sans-serif" font-size="8" font-weight="700" fill="#475569" letter-spacing="1">PROVEEDOR</text>
+  <text x="960" y="377" font-family="system-ui,-apple-system,sans-serif" font-size="8" font-weight="700" fill="#475569" letter-spacing="1">CLIENTE</text>
+
+  <!-- Row 1 — ok -->
+  <rect x="666" y="393" width="44" height="16" rx="8" fill="#052E16" stroke="#166534" stroke-width="0.8"/>
+  <text x="688" y="405" font-family="system-ui,-apple-system,sans-serif" font-size="8" font-weight="700" fill="#4ADE80" text-anchor="middle">✓ Igual</text>
+  <text x="740" y="405" font-family="ui-monospace,monospace" font-size="9" fill="#94A3B8">LM-20472</text>
+  <text x="840" y="405" font-family="ui-monospace,monospace" font-size="9" fill="#94A3B8">$4.850</text>
+  <text x="960" y="405" font-family="ui-monospace,monospace" font-size="9" fill="#94A3B8">$4.850</text>
+  <line x1="650" y1="414" x2="1120" y2="414" stroke="#1E293B" stroke-width="1"/>
+
+  <!-- Row 2 — diff -->
+  <rect x="666" y="421" width="60" height="16" rx="8" fill="#2D0A0A" stroke="#7F1D1D" stroke-width="0.8"/>
+  <text x="696" y="433" font-family="system-ui,-apple-system,sans-serif" font-size="8" font-weight="700" fill="#F87171" text-anchor="middle">✕ Diferencia</text>
+  <text x="740" y="433" font-family="ui-monospace,monospace" font-size="9" fill="#94A3B8">LM-20250</text>
+  <text x="840" y="433" font-family="ui-monospace,monospace" font-size="9" fill="#94A3B8">$12.300</text>
+  <text x="960" y="433" font-family="ui-monospace,monospace" font-size="9" fill="#94A3B8">$11.800</text>
+  <rect x="1060" y="427" width="28" height="4" rx="2" fill="#DC2626"/>
+  <text x="1094" y="433" font-family="ui-monospace,monospace" font-size="8" fill="#F87171">−4%</text>
+  <line x1="650" y1="442" x2="1120" y2="442" stroke="#1E293B" stroke-width="1"/>
+
+  <!-- Row 3 — ok -->
+  <rect x="666" y="449" width="44" height="16" rx="8" fill="#052E16" stroke="#166534" stroke-width="0.8"/>
+  <text x="688" y="461" font-family="system-ui,-apple-system,sans-serif" font-size="8" font-weight="700" fill="#4ADE80" text-anchor="middle">✓ Igual</text>
+  <text x="740" y="461" font-family="ui-monospace,monospace" font-size="9" fill="#94A3B8">LM-21275</text>
+  <text x="840" y="461" font-family="ui-monospace,monospace" font-size="9" fill="#94A3B8">$7.200</text>
+  <text x="960" y="461" font-family="ui-monospace,monospace" font-size="9" fill="#94A3B8">$7.200</text>
+  <line x1="650" y1="470" x2="1120" y2="470" stroke="#1E293B" stroke-width="1"/>
+
+  <!-- Row 4 — diff -->
+  <rect x="666" y="477" width="60" height="16" rx="8" fill="#2D0A0A" stroke="#7F1D1D" stroke-width="0.8"/>
+  <text x="696" y="489" font-family="system-ui,-apple-system,sans-serif" font-size="8" font-weight="700" fill="#F87171" text-anchor="middle">✕ Diferencia</text>
+  <text x="740" y="489" font-family="ui-monospace,monospace" font-size="9" fill="#94A3B8">LM-39001</text>
+  <text x="840" y="489" font-family="ui-monospace,monospace" font-size="9" fill="#94A3B8">$28.500</text>
+  <text x="960" y="489" font-family="ui-monospace,monospace" font-size="9" fill="#94A3B8">$31.200</text>
+  <rect x="1060" y="483" width="44" height="4" rx="2" fill="#DC2626"/>
+  <text x="1108" y="489" font-family="ui-monospace,monospace" font-size="8" fill="#F87171">+9%</text>
+  <line x1="650" y1="498" x2="1120" y2="498" stroke="#1E293B" stroke-width="1"/>
+
+  <!-- Row 5 — ok -->
+  <rect x="666" y="505" width="44" height="16" rx="8" fill="#052E16" stroke="#166534" stroke-width="0.8"/>
+  <text x="688" y="517" font-family="system-ui,-apple-system,sans-serif" font-size="8" font-weight="700" fill="#4ADE80" text-anchor="middle">✓ Igual</text>
+  <text x="740" y="517" font-family="ui-monospace,monospace" font-size="9" fill="#94A3B8">LM-44810</text>
+  <text x="840" y="517" font-family="ui-monospace,monospace" font-size="9" fill="#94A3B8">$3.100</text>
+  <text x="960" y="517" font-family="ui-monospace,monospace" font-size="9" fill="#94A3B8">$3.100</text>
+
+  <!-- Bottom border line -->
+  <line x1="0" y1="610" x2="1200" y2="610" stroke="#1E293B" stroke-width="1"/>
+  <text x="72" y="623" font-family="system-ui,-apple-system,sans-serif" font-size="11" fill="#334155">boxergroup.com.ar</text>
+  <text x="1128" y="623" font-family="system-ui,-apple-system,sans-serif" font-size="11" fill="#334155" text-anchor="end">v2</text>
+</svg>
