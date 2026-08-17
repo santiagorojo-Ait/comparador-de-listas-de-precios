@@ -118,7 +118,7 @@ export default function App() {
     <div className="min-h-screen bg-bg text-prose font-sans px-6 py-8 pb-16">
       <div className="fixed top-4 left-4 z-50 flex items-center gap-2">
         <span className="text-xs text-muted border border-app-border rounded-full px-2 py-0.5 bg-surface select-none">
-          v{version.split('.')[0]}
+          v{version.split('.').slice(0, 2).join('.')}
         </span>
         <button
           onClick={() => setShowDocs(true)}
