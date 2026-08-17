@@ -13,8 +13,8 @@ import DocsModal from './components/DocsModal'
 import { compareFiles } from './utils/compare'
 
 const INITIAL_SIDE = { data: null, headers: [], file: null, codeCol: '', priceCol: '' }
-const LABEL_A = 'Lista en drive de proveedores'
-const LABEL_B = 'Lista del cliente'
+const LABEL_A = 'Lista A'
+const LABEL_B = 'Lista B'
 
 function getCategory(file) {
   if (!file) return null
@@ -34,6 +34,7 @@ export default function App() {
   const [showWhatsNew, setShowWhatsNew] = useState(false)
   const [showTour, setShowTour] = useState(false)
   const [showDocs, setShowDocs] = useState(false)
+  const [compareMode, setCompareMode] = useState('prices')
   const [comparing, setComparing] = useState(false)
   const [filtering, setFiltering] = useState(false)
   const [filter, setFilter] = useState('all')
@@ -89,7 +90,7 @@ export default function App() {
   const compare = async () => {
     setComparing(true)
     await new Promise(resolve => setTimeout(resolve, 30))
-    const { results, onlyA, onlyB } = compareFiles(sideA, sideB)
+    const { results, onlyA, onlyB } = compareFiles(sideA, sideB, compareMode)
     setResults(results)
     setOnlyA(onlyA)
     setOnlyB(onlyB)
@@ -158,6 +159,20 @@ export default function App() {
           )}
         </button>
         </span>
+        {canCompare && (
+          <div className="mt-3 flex items-center justify-center gap-2">
+            <input
+              type="checkbox"
+              id="codes-only"
+              checked={compareMode === 'codes-only'}
+              onChange={e => setCompareMode(e.target.checked ? 'codes-only' : 'prices')}
+              className="accent-accent cursor-pointer"
+            />
+            <label htmlFor="codes-only" className="text-xs text-muted cursor-pointer select-none">
+              Comparar solo códigos (ignorar precios)
+            </label>
+          </div>
+        )}
         {typeMismatch && (
           <p className="mt-3 text-xs text-warn">
             Las listas deben ser del mismo tipo — ambas PDF o ambas Excel/CSV.
@@ -174,7 +189,18 @@ export default function App() {
 
       {hasCompared && results.length > 0 && (
         <div className="max-w-4xl mx-auto">
-          <StatsBar counts={counts} />
+          {counts.diff === 0 && (
+            <div className="mb-6 rounded-xl border border-accent/30 bg-accent/5 px-5 py-4 flex items-center gap-3">
+              <span className="text-2xl">✓</span>
+              <div>
+                <p className="text-sm font-bold text-accent">Todas las listas coinciden</p>
+                <p className="text-xs text-muted mt-0.5">
+                  Los {results.length} artículos comparados {compareMode === 'codes-only' ? 'están presentes en ambas listas.' : 'tienen el mismo precio en ambas listas.'}
+                </p>
+              </div>
+            </div>
+          )}
+          <StatsBar counts={counts} compareMode={compareMode} />
           <FilterBar filter={filter} setFilter={setFilter} total={results.length} />
           <div className="mb-4">
             <input
@@ -191,7 +217,7 @@ export default function App() {
                 <Spinner size="lg" />
               </div>
             )}
-            <ResultsTable rows={filteredResults} nameA={nameA} nameB={nameB} />
+            <ResultsTable rows={filteredResults} nameA={nameA} nameB={nameB} compareMode={compareMode} />
           </div>
 
           {(onlyA.length > 0 || onlyB.length > 0) && (

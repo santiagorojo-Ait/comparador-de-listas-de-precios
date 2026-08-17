@@ -36,7 +36,8 @@ function Delta({ row }) {
   )
 }
 
-export default function ResultsTable({ rows, nameA, nameB }) {
+export default function ResultsTable({ rows, nameA, nameB, compareMode }) {
+  const codesOnly = compareMode === 'codes-only'
   const [page, setPage] = useState(1)
 
   useEffect(() => { setPage(1) }, [rows])
@@ -51,7 +52,9 @@ export default function ResultsTable({ rows, nameA, nameB }) {
 
   const totalPages = Math.ceil(rows.length / PAGE_SIZE)
   const visible = rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
-  const cols = ['Código', 'Estado', nameA, nameB, 'Δ %']
+  const cols = codesOnly
+    ? ['Código', 'Estado']
+    : ['Código', 'Estado', nameA, nameB, 'Δ %']
 
   return (
     <div>
@@ -77,9 +80,9 @@ export default function ResultsTable({ rows, nameA, nameB }) {
                       {cfg.label}
                     </span>
                   </td>
-                  <td className="px-4 py-2.5 font-mono text-xs">{formatPrice(r.priceA)}</td>
-                  <td className="px-4 py-2.5 font-mono text-xs">{formatPrice(r.priceB)}</td>
-                  <td className="px-4 py-2.5"><Delta row={r} /></td>
+                  {!codesOnly && <td className="px-4 py-2.5 font-mono text-xs">{formatPrice(r.priceA)}</td>}
+                  {!codesOnly && <td className="px-4 py-2.5 font-mono text-xs">{formatPrice(r.priceB)}</td>}
+                  {!codesOnly && <td className="px-4 py-2.5"><Delta row={r} /></td>}
                 </tr>
               )
             })}

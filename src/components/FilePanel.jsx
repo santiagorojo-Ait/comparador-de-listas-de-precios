@@ -2,6 +2,15 @@ import { useRef, useState } from 'react'
 import { parseFile } from '../utils/parseFile'
 import Spinner from './Spinner'
 
+function findDuplicateCodes(data, codeCol) {
+  const seen = {}
+  data.forEach(row => {
+    const k = String(row[codeCol] || '').trim().toUpperCase()
+    if (k) seen[k] = (seen[k] || 0) + 1
+  })
+  return Object.entries(seen).filter(([, c]) => c > 1).map(([k]) => k)
+}
+
 const CODE_KEYWORDS = ['codigo', 'code', 'cod', 'articulo', 'id', 'sku', 'referencia', 'ref']
 const PRICE_KEYWORDS = ['precio', 'price', 'importe', 'valor', 'costo', 'pvp', 'monto']
 const VALID_EXTS = ['.xlsx', '.xls', '.csv', '.pdf']
@@ -61,9 +70,21 @@ export default function FilePanel({ side, label, sideState, onFileLoad, onColCha
       onFileLoad(side, file, data, headers, detected)
 
       const noColumns = data.length > 0 && !detected.codeCol && !detected.priceCol
-      const finalStatus = status ?? (noColumns
+      let finalStatus = status ?? (noColumns
         ? { type: 'warn', message: 'No se detectaron columnas de código ni precio. El archivo puede no ser una lista de precios.' }
         : null)
+
+      if (!finalStatus && detected.codeCol) {
+        const dups = findDuplicateCodes(data, detected.codeCol)
+        if (dups.length > 0) {
+          const shown = dups.slice(0, 10)
+          finalStatus = {
+            type: 'warn',
+            message: `Hay ${dups.length} código${dups.length > 1 ? 's' : ''} repetido${dups.length > 1 ? 's' : ''} en esta lista: ${shown.join(', ')}${dups.length > 10 ? ' y más...' : ''}`,
+          }
+        }
+      }
+
       setFileStatus(finalStatus)
       setLoading(false)
     })
