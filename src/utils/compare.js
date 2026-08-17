@@ -93,7 +93,7 @@ export function compareFiles(sideA, sideB, mode = 'prices') {
     } else {
       const pA = parsePrice(rowA[priceA])
       const pB = parsePrice(rowB[priceB])
-      const equal = !isNaN(pA) && !isNaN(pB) && Math.abs(pA - pB) < 0.001
+      const equal = !isNaN(pA) && !isNaN(pB) && Math.abs(pA - pB) <= 1
       results.push({ code: key, priceA: pA, priceB: pB, status: equal ? 'ok' : 'diff' })
     }
   })
