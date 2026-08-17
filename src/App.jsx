@@ -105,8 +105,8 @@ export default function App() {
     diff: results.filter(r => r.status === 'diff').length,
   }
 
-  const nameA = sideA.file ? sideA.file.name.replace(/\.[^.]+$/, '') : LABEL_A
-  const nameB = sideB.file ? sideB.file.name.replace(/\.[^.]+$/, '') : LABEL_B
+  const nameA = LABEL_A
+  const nameB = LABEL_B
 
   return (
     <>
