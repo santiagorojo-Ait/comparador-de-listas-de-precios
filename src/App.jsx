@@ -23,6 +23,142 @@ function getCategory(file) {
   return 'spreadsheet'
 }
 
+function findDuplicateCodes(data, col) {
+  const seen = {}
+  data.forEach(row => {
+    const k = String(row[col] || '').trim().toUpperCase()
+    if (k) seen[k] = (seen[k] || 0) + 1
+  })
+  return Object.entries(seen).filter(([, c]) => c > 1).map(([k]) => k)
+}
+
+function checkUniquenessPerGroup(data, codeCol, checkCol) {
+  const groups = {}
+  data.forEach(row => {
+    const code = String(row[codeCol] || '').trim().toUpperCase()
+    const check = String(row[checkCol] || '').trim().toUpperCase()
+    if (!code || !check) return
+    if (!groups[code]) groups[code] = []
+    groups[code].push(check)
+  })
+  const problems = []
+  for (const [code, vals] of Object.entries(groups)) {
+    const seen = new Set()
+    for (const v of vals) {
+      if (seen.has(v)) { problems.push(code); break }
+      seen.add(v)
+    }
+  }
+  return problems
+}
+
+function OriginalFinder({ side, sideState, codeCol, onClose }) {
+  const otherHeaders = sideState.headers.filter(h => h !== codeCol)
+  const [col, setCol] = useState(otherHeaders[0] || '')
+  const [problemCodes, setProblemCodes] = useState(() => {
+    if (otherHeaders[0] && sideState.data) {
+      return checkUniquenessPerGroup(sideState.data, codeCol, otherHeaders[0])
+    }
+    return []
+  })
+
+  const handleChange = (newCol) => {
+    setCol(newCol)
+    if (sideState.data) {
+      setProblemCodes(checkUniquenessPerGroup(sideState.data, codeCol, newCol))
+    }
+  }
+
+  if (!col) return null
+  const hasProblems = problemCodes.length > 0
+
+  return (
+    <div className={[
+      'mt-2 rounded-lg px-3 py-3 text-xs border',
+      hasProblems ? 'bg-warn-dim/40 border-warn/40' : 'bg-accent/5 border-accent/30',
+    ].join(' ')}>
+      {hasProblems ? (
+        <div className="flex items-start gap-2 text-warn mb-2">
+          <span className="font-bold shrink-0 mt-px">!</span>
+          <span>
+            La columna <span className="font-mono font-semibold">"{col}"</span> tiene código repetido en{' '}
+            {problemCodes.length} artículo{problemCodes.length !== 1 ? 's' : ''}:{' '}
+            {problemCodes.slice(0, 5).join(', ')}{problemCodes.length > 5 ? ' y más...' : ''}
+          </span>
+        </div>
+      ) : (
+        <div className="flex items-start gap-2 text-accent mb-2">
+          <span className="font-bold shrink-0 mt-px">✓</span>
+          <span>
+            Podés usar <span className="font-mono font-semibold">"{col}"</span> como código original.
+          </span>
+        </div>
+      )}
+      <div className="flex items-center gap-2">
+        <span className="text-muted shrink-0">Verificar en:</span>
+        <select
+          value={col}
+          onChange={e => handleChange(e.target.value)}
+          className="flex-1 bg-surface2 border border-app-border text-prose rounded-md px-2 py-1 text-xs font-mono focus:outline-none focus:border-accent transition-colors cursor-pointer"
+        >
+          {otherHeaders.map(h => (
+            <option key={h} value={h}>{h}</option>
+          ))}
+        </select>
+      </div>
+    </div>
+  )
+}
+
+function DupBanner({ dupA, dupB, sideA, sideB, activeSide, onToggle }) {
+  if (!dupA && !dupB) return null
+  return (
+    <div className="mb-6 rounded-xl border border-warn/40 bg-warn-dim/40 px-5 py-4">
+      <div className="flex items-start gap-3 mb-3">
+        <span className="text-warn font-bold text-base shrink-0 mt-px">!</span>
+        <p className="text-sm font-semibold text-warn">Hay códigos de artículos repetidos</p>
+      </div>
+      <p className="text-xs text-muted mb-3">
+        Seleccioná la lista que vas a vincular en el sistema del cliente para buscar qué columna usar como código original.
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {dupA && (
+          <button
+            onClick={() => onToggle(activeSide === 'A' ? null : 'A')}
+            className={[
+              'px-3 py-1 rounded-full text-xs font-medium transition-colors',
+              activeSide === 'A'
+                ? 'bg-warn text-bg'
+                : 'border border-warn/50 text-warn/80 hover:bg-warn/10',
+            ].join(' ')}
+          >
+            Lista A
+          </button>
+        )}
+        {dupB && (
+          <button
+            onClick={() => onToggle(activeSide === 'B' ? null : 'B')}
+            className={[
+              'px-3 py-1 rounded-full text-xs font-medium transition-colors',
+              activeSide === 'B'
+                ? 'bg-warn text-bg'
+                : 'border border-warn/50 text-warn/80 hover:bg-warn/10',
+            ].join(' ')}
+          >
+            Lista B
+          </button>
+        )}
+      </div>
+      {activeSide === 'A' && (
+        <OriginalFinder side="A" sideState={sideA} codeCol={sideA.codeCol} />
+      )}
+      {activeSide === 'B' && (
+        <OriginalFinder side="B" sideState={sideB} codeCol={sideB.codeCol} />
+      )}
+    </div>
+  )
+}
+
 export default function App() {
   const [sideA, setSideA] = useState(INITIAL_SIDE)
   const [sideB, setSideB] = useState(INITIAL_SIDE)
@@ -39,6 +175,9 @@ export default function App() {
   const [filtering, setFiltering] = useState(false)
   const [filter, setFilter] = useState('all')
   const [search, setSearch] = useState('')
+  const [dupA, setDupA] = useState(false)
+  const [dupB, setDupB] = useState(false)
+  const [activeDupSide, setActiveDupSide] = useState(null)
 
   useEffect(() => {
     if (results.length === 0) { setFilteredResults([]); return }
@@ -98,6 +237,9 @@ export default function App() {
       setHasCompared(true)
       setFilter('all')
       setSearch('')
+      setActiveDupSide(null)
+      setDupA(sideA.codeCol ? findDuplicateCodes(sideA.data, sideA.codeCol).length > 0 : false)
+      setDupB(sideB.codeCol ? findDuplicateCodes(sideB.data, sideB.codeCol).length > 0 : false)
     } finally {
       setComparing(false)
     }
@@ -163,17 +305,25 @@ export default function App() {
         </button>
         </span>
         {canCompare && (
-          <div className="mt-3 flex items-center justify-center gap-2">
-            <input
-              type="checkbox"
-              id="codes-only"
-              checked={compareMode === 'codes-only'}
-              onChange={e => setCompareMode(e.target.checked ? 'codes-only' : 'prices')}
-              className="accent-accent cursor-pointer"
-            />
-            <label htmlFor="codes-only" className="text-xs text-muted cursor-pointer select-none">
+          <div className="mt-3 flex items-center justify-center">
+            <button
+              onClick={() => setCompareMode(prev => prev === 'codes-only' ? 'prices' : 'codes-only')}
+              className={[
+                'flex items-center gap-2 text-xs transition-colors select-none cursor-pointer',
+                compareMode === 'codes-only' ? 'text-accent' : 'text-muted hover:text-prose',
+              ].join(' ')}
+            >
+              <span className={[
+                'relative inline-flex items-center w-8 h-4 rounded-full transition-colors duration-200 shrink-0',
+                compareMode === 'codes-only' ? 'bg-accent' : 'bg-surface2 border border-app-border',
+              ].join(' ')}>
+                <span className={[
+                  'absolute left-0.5 w-3 h-3 rounded-full bg-prose transition-transform duration-200',
+                  compareMode === 'codes-only' ? 'translate-x-4' : 'translate-x-0',
+                ].join(' ')} />
+              </span>
               Comparar solo códigos (ignorar precios)
-            </label>
+            </button>
           </div>
         )}
         {typeMismatch && (
@@ -192,6 +342,13 @@ export default function App() {
 
       {hasCompared && (
         <div className="max-w-4xl mx-auto">
+          <DupBanner
+            dupA={dupA} dupB={dupB}
+            sideA={sideA} sideB={sideB}
+            activeSide={activeDupSide}
+            onToggle={setActiveDupSide}
+          />
+
           {results.length === 0 ? (
             <div className="mb-6 rounded-xl border border-app-border bg-surface px-5 py-4 flex items-center gap-3">
               <span className="text-2xl">⚠</span>
@@ -240,6 +397,7 @@ export default function App() {
           {(onlyA.length > 0 || onlyB.length > 0) && (
             <OnlyPanel onlyA={onlyA} onlyB={onlyB} nameA={nameA} nameB={nameB} />
           )}
+
         </div>
       )}
     </div>

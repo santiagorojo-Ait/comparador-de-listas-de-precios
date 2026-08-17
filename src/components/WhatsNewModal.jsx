@@ -9,10 +9,11 @@ const RELEASE_NOTES = {
   ],
   '2.1': [
     'Paneles renombrados a "Lista A" y "Lista B" para uso más genérico',
-    'Detección de códigos duplicados al cargar un archivo — aviso con el detalle de cuáles se repiten',
     'Indicador de éxito cuando todos los artículos coinciden entre las dos listas',
-    'Nuevo modo: "Comparar solo códigos" — verifica presencia sin comparar precios',
+    'Modo "Comparar solo códigos" — verifica presencia sin comparar precios',
     'Corrección: precios con formato argentino (10.350,00) y estadounidense (10,350.00) ahora se comparan correctamente',
+    'Detección de códigos duplicados post-comparación: aviso unificado con selector de lista para encontrar qué columna usar como código original',
+    'Tolerancia de $1 en comparación de precios para evitar falsos positivos por redondeo',
   ],
 }
 

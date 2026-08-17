@@ -2,27 +2,11 @@ import { useRef, useState } from 'react'
 import { parseFile } from '../utils/parseFile'
 import Spinner from './Spinner'
 
-function findDuplicateCodes(data, codeCol) {
-  const seen = {}
-  data.forEach(row => {
-    const k = String(row[codeCol] || '').trim().toUpperCase()
-    if (k) seen[k] = (seen[k] || 0) + 1
-  })
-  return Object.entries(seen).filter(([, c]) => c > 1).map(([k]) => k)
-}
-
 const CODE_KEYWORDS = ['codigo', 'code', 'cod', 'articulo', 'id', 'sku', 'referencia', 'ref']
 const PRICE_KEYWORDS = ['precio', 'price', 'importe', 'valor', 'costo', 'pvp', 'monto']
 const VALID_EXTS = ['.xlsx', '.xls', '.csv', '.pdf']
 
-function getCategory(ext) {
-  if (ext === '.pdf') return 'pdf'
-  if (['.xlsx', '.xls', '.csv'].includes(ext)) return 'spreadsheet'
-  return null
-}
-
 function autoDetect(headers, keywords) {
-  // Only match short header names (real column labels, not paragraph text)
   return headers.find(h =>
     h.length <= 40 && keywords.some(k => h.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').includes(k))
   ) || ''
@@ -53,10 +37,7 @@ export default function FilePanel({ side, label, sideState, onFileLoad, onColCha
   const handleLoad = (file) => {
     const ext = '.' + file.name.split('.').pop().toLowerCase()
     if (!VALID_EXTS.includes(ext)) {
-      setFileStatus({
-        type: 'error',
-        message: `Formato no soportado: "${ext}". Usá .xlsx, .xls, .csv o .pdf.`,
-      })
+      setFileStatus({ type: 'error', message: `Formato no soportado: "${ext}". Usá .xlsx, .xls, .csv o .pdf.` })
       return
     }
 
@@ -70,22 +51,10 @@ export default function FilePanel({ side, label, sideState, onFileLoad, onColCha
       onFileLoad(side, file, data, headers, detected)
 
       const noColumns = data.length > 0 && !detected.codeCol && !detected.priceCol
-      let finalStatus = status ?? (noColumns
+      setFileStatus(status ?? (noColumns
         ? { type: 'warn', message: 'No se detectaron columnas de código ni precio. El archivo puede no ser una lista de precios.' }
-        : null)
+        : null))
 
-      if (!finalStatus && detected.codeCol) {
-        const dups = findDuplicateCodes(data, detected.codeCol)
-        if (dups.length > 0) {
-          const shown = dups.slice(0, 10)
-          finalStatus = {
-            type: 'warn',
-            message: `Hay ${dups.length} código${dups.length > 1 ? 's' : ''} repetido${dups.length > 1 ? 's' : ''} en esta lista: ${shown.join(', ')}${dups.length > 10 ? ' y más...' : ''}`,
-          }
-        }
-      }
-
-      setFileStatus(finalStatus)
       setLoading(false)
     })
   }
@@ -105,7 +74,7 @@ export default function FilePanel({ side, label, sideState, onFileLoad, onColCha
     loading ? 'border-accent/50 cursor-wait' : 'cursor-pointer',
     !loading && dragging ? 'border-accent bg-accent/5' : '',
     !loading && !dragging && hasError ? '!border-solid !border-danger' : '',
-    !loading && !dragging && hasWarn  ? '!border-solid !border-warn'   : '',
+    !loading && !dragging && !hasError && hasWarn ? '!border-solid !border-warn' : '',
     !loading && !dragging && !hasError && !hasWarn && sideState.file ? '!border-solid !border-accent' : '',
     !loading && !dragging && !hasError && !hasWarn && !sideState.file ? 'border-app-border hover:border-accent hover:bg-accent/5' : '',
   ].join(' ')
