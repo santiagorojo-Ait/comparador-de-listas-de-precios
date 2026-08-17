@@ -1,5 +1,5 @@
 const RELEASE_NOTES = {
-  2: [
+  '2.0': [
     'Comparación ampliada al 85% de los artículos de cada lista (antes era una muestra de 20–30)',
     'Tabla de resultados paginada — 10 artículos por página, sin scroll',
     'Panel de artículos exclusivos: artículos que existen en una lista pero no en la otra',
@@ -7,11 +7,18 @@ const RELEASE_NOTES = {
     'Mensajes contextuales bajo el botón de comparar indicando qué falta para habilitarlo',
     'Indicador de versión en la esquina superior izquierda',
   ],
+  '2.1': [
+    'Paneles renombrados a "Lista A" y "Lista B" para uso más genérico',
+    'Detección de códigos duplicados al cargar un archivo — aviso con el detalle de cuáles se repiten',
+    'Indicador de éxito cuando todos los artículos coinciden entre las dos listas',
+    'Nuevo modo: "Comparar solo códigos" — verifica presencia sin comparar precios',
+    'Corrección: precios con formato argentino (10.350,00) y estadounidense (10,350.00) ahora se comparan correctamente',
+  ],
 }
 
 export default function WhatsNewModal({ version, onClose }) {
-  const major = parseInt(version.split('.')[0])
-  const notes = RELEASE_NOTES[major]
+  const minorVersion = version.split('.').slice(0, 2).join('.')
+  const notes = RELEASE_NOTES[minorVersion]
   if (!notes) return null
 
   return (
@@ -23,7 +30,7 @@ export default function WhatsNewModal({ version, onClose }) {
         <div className="px-6 pt-6 pb-4 border-b border-app-border flex items-start justify-between gap-4">
           <div>
             <span className="text-xs text-muted uppercase tracking-widest font-semibold">Novedades</span>
-            <h2 className="text-lg font-bold text-accent mt-0.5">Versión {major}</h2>
+            <h2 className="text-lg font-bold text-accent mt-0.5">Versión {minorVersion}</h2>
           </div>
           <button
             onClick={onClose}

@@ -55,14 +55,14 @@ export default function App() {
   }, [filter, search, results])
 
   useEffect(() => {
-    const currentMajor = version.split('.')[0]
+    const currentVersion = version.split('.').slice(0, 2).join('.')
     const lastSeen = localStorage.getItem('lastSeenVersion')
     if (lastSeen === null) {
       setShowTour(true)
-    } else if (lastSeen !== currentMajor) {
+    } else if (lastSeen !== currentVersion) {
       setShowWhatsNew(true)
     }
-    localStorage.setItem('lastSeenVersion', currentMajor)
+    localStorage.setItem('lastSeenVersion', currentVersion)
   }, [])
 
   const handleFileLoad = useCallback((side, file, data, headers, autoDetected) => {
