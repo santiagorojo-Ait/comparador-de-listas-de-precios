@@ -89,15 +89,18 @@ export default function App() {
 
   const compare = async () => {
     setComparing(true)
-    await new Promise(resolve => setTimeout(resolve, 30))
-    const { results, onlyA, onlyB } = compareFiles(sideA, sideB, compareMode)
-    setResults(results)
-    setOnlyA(onlyA)
-    setOnlyB(onlyB)
-    setHasCompared(true)
-    setFilter('all')
-    setSearch('')
-    setComparing(false)
+    try {
+      await new Promise(resolve => setTimeout(resolve, 30))
+      const { results, onlyA, onlyB } = compareFiles(sideA, sideB, compareMode)
+      setResults(results)
+      setOnlyA(onlyA)
+      setOnlyB(onlyB)
+      setHasCompared(true)
+      setFilter('all')
+      setSearch('')
+    } finally {
+      setComparing(false)
+    }
   }
 
   const counts = {
@@ -187,38 +190,52 @@ export default function App() {
         )}
       </div>
 
-      {hasCompared && results.length > 0 && (
+      {hasCompared && (
         <div className="max-w-4xl mx-auto">
-          {counts.diff === 0 && (
-            <div className="mb-6 rounded-xl border border-accent/30 bg-accent/5 px-5 py-4 flex items-center gap-3">
-              <span className="text-2xl">✓</span>
+          {results.length === 0 ? (
+            <div className="mb-6 rounded-xl border border-app-border bg-surface px-5 py-4 flex items-center gap-3">
+              <span className="text-2xl">⚠</span>
               <div>
-                <p className="text-sm font-bold text-accent">Todas las listas coinciden</p>
+                <p className="text-sm font-bold text-warn">Sin artículos coincidentes</p>
                 <p className="text-xs text-muted mt-0.5">
-                  Los {results.length} artículos comparados {compareMode === 'codes-only' ? 'están presentes en ambas listas.' : 'tienen el mismo precio en ambas listas.'}
+                  No se encontraron códigos en común entre las dos listas. Verificá que ambas usen el mismo formato de código.
                 </p>
               </div>
             </div>
-          )}
-          <StatsBar counts={counts} compareMode={compareMode} />
-          <FilterBar filter={filter} setFilter={setFilter} total={results.length} />
-          <div className="mb-4">
-            <input
-              type="text"
-              placeholder="Buscar por código..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="w-full bg-surface border border-app-border text-prose placeholder:text-muted rounded-lg px-4 py-2 text-sm font-mono focus:outline-none focus:border-accent transition-colors"
-            />
-          </div>
-          <div className="relative">
-            {filtering && (
-              <div className="absolute inset-0 bg-bg/60 backdrop-blur-[2px] flex items-center justify-center z-20 rounded-xl">
-                <Spinner size="lg" />
+          ) : (
+            <>
+              {counts.diff === 0 && (
+                <div className="mb-6 rounded-xl border border-accent/30 bg-accent/5 px-5 py-4 flex items-center gap-3">
+                  <span className="text-2xl">✓</span>
+                  <div>
+                    <p className="text-sm font-bold text-accent">Todas las listas coinciden</p>
+                    <p className="text-xs text-muted mt-0.5">
+                      Los {results.length} artículos comparados {compareMode === 'codes-only' ? 'están presentes en ambas listas.' : 'tienen el mismo precio en ambas listas.'}
+                    </p>
+                  </div>
+                </div>
+              )}
+              <StatsBar counts={counts} compareMode={compareMode} />
+              <FilterBar filter={filter} setFilter={setFilter} total={results.length} />
+              <div className="mb-4">
+                <input
+                  type="text"
+                  placeholder="Buscar por código..."
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  className="w-full bg-surface border border-app-border text-prose placeholder:text-muted rounded-lg px-4 py-2 text-sm font-mono focus:outline-none focus:border-accent transition-colors"
+                />
               </div>
-            )}
-            <ResultsTable rows={filteredResults} nameA={nameA} nameB={nameB} compareMode={compareMode} />
-          </div>
+              <div className="relative">
+                {filtering && (
+                  <div className="absolute inset-0 bg-bg/60 backdrop-blur-[2px] flex items-center justify-center z-20 rounded-xl">
+                    <Spinner size="lg" />
+                  </div>
+                )}
+                <ResultsTable rows={filteredResults} nameA={nameA} nameB={nameB} compareMode={compareMode} />
+              </div>
+            </>
+          )}
 
           {(onlyA.length > 0 || onlyB.length > 0) && (
             <OnlyPanel onlyA={onlyA} onlyB={onlyB} nameA={nameA} nameB={nameB} />
