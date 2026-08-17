@@ -3,11 +3,12 @@ import { useEffect } from 'react'
 const DOCS_URL = 'https://claude.ai/code/artifact/6946668d-de20-4578-887f-b9adeb4af000'
 
 const STEPS = [
-  { n: '1', title: 'Subí el archivo del proveedor', body: 'En el panel izquierdo, arrastrá el archivo o hacé clic para buscarlo. Acepta .xlsx, .xls, .csv y .pdf. Una vez cargado, el nombre aparece en verde.' },
-  { n: '2', title: 'Subí el archivo del cliente', body: 'Lo mismo en el panel derecho. Ambos archivos tienen que ser del mismo tipo: los dos Excel/CSV, o los dos PDF.' },
+  { n: '1', title: 'Subí la Lista A', body: 'En el panel izquierdo, arrastrá el archivo o hacé clic para buscarlo. Acepta .xlsx, .xls, .csv y .pdf. Una vez cargado, el nombre aparece en verde. Si la lista tiene códigos repetidos, aparece una advertencia con el detalle.' },
+  { n: '2', title: 'Subí la Lista B', body: 'Lo mismo en el panel derecho. Ambos archivos tienen que ser del mismo tipo: los dos Excel/CSV, o los dos PDF.' },
   { n: '3', title: 'Verificá las columnas', body: 'La herramienta detecta automáticamente la columna de código y la de precio. Si no es correcto, usá los selectores para elegirlas manualmente.' },
-  { n: '4', title: 'Hacé clic en "Comparar listas →"', body: 'El botón se habilita cuando ambos archivos están cargados, son del mismo tipo y tienen las columnas seleccionadas. Un mensaje debajo indica qué falta si no se habilita.' },
-  { n: '5', title: 'Explorá los resultados', body: 'Aparece la tabla con coincidencias y diferencias de precio, un resumen con conteos y el panel de artículos sin par. Podés filtrar por estado y buscar por código.' },
+  { n: '4', title: 'Elegí el modo de comparación', body: 'Por defecto compara códigos y precios. Si solo querés verificar que los mismos códigos existen en ambas listas, activá el check "Comparar solo códigos (ignorar precios)".' },
+  { n: '5', title: 'Hacé clic en "Comparar listas →"', body: 'El botón se habilita cuando ambos archivos están cargados, son del mismo tipo y tienen las columnas seleccionadas. Un mensaje debajo indica qué falta si no se habilita.' },
+  { n: '6', title: 'Explorá los resultados', body: 'Aparece la tabla con coincidencias y diferencias de precio, un resumen con conteos y el panel de artículos sin par. Si todo coincide, aparece un mensaje de confirmación. Podés filtrar por estado y buscar por código.' },
 ]
 
 const FORMATS = [
@@ -36,6 +37,14 @@ const FAQS = [
   {
     q: '¿Qué pasa si un artículo existe en una lista pero no en la otra?',
     a: 'Aparece en el Panel de artículos sin coincidencia, debajo de la tabla principal, con su código y precio.',
+  },
+  {
+    q: '¿Qué significa el modo "solo códigos"?',
+    a: 'Al activar "Comparar solo códigos (ignorar precios)", la herramienta verifica únicamente si los mismos códigos existen en ambas listas, sin comparar precios. Útil para auditar catálogos o detectar artículos faltantes.',
+  },
+  {
+    q: '¿Qué pasa si hay códigos repetidos en un archivo?',
+    a: 'Al cargar el archivo, aparece una advertencia en amarillo con los códigos que están repetidos. La comparación igual se puede hacer, pero el resultado puede ser impreciso si el mismo código tiene precios distintos dentro de la misma lista.',
   },
   {
     q: '¿Los precios con coma decimal funcionan?',
@@ -101,7 +110,7 @@ export default function DocsModal({ onClose }) {
         <section className="mb-10">
           <SectionTitle num="01" title="¿Para qué sirve?" />
           <p className="text-sm text-muted leading-relaxed mb-3">
-            Resuelve un problema concreto: tenés la lista de precios que te mandó el proveedor y la lista del cliente, y necesitás saber si coinciden o si hay diferencias.
+            Resuelve un problema concreto: tenés dos listas de precios (Lista A y Lista B) y necesitás saber si coinciden o si hay diferencias.
           </p>
           <p className="text-sm text-muted leading-relaxed mb-4">
             Hacerlo manualmente en Excel es lento y propenso a errores. Esta herramienta lo hace automáticamente: cargás los dos archivos, elegís las columnas de código y precio, y en segundos tenés un informe completo.

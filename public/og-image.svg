@@ -58,7 +58,7 @@
 
   <!-- Panel A -->
   <rect x="650" y="72" width="228" height="210" rx="12" fill="url(#cardGrad)" stroke="#1E3A5F" stroke-width="1"/>
-  <text x="670" y="104" font-family="system-ui,-apple-system,sans-serif" font-size="9" font-weight="700" fill="#475569" letter-spacing="1.5">LISTA DEL PROVEEDOR</text>
+  <text x="670" y="104" font-family="system-ui,-apple-system,sans-serif" font-size="9" font-weight="700" fill="#475569" letter-spacing="1.5">LISTA A</text>
   <!-- Drop zone -->
   <rect x="666" y="114" width="196" height="96" rx="8" fill="none" stroke="#334155" stroke-width="1.5" stroke-dasharray="5,4"/>
   <rect x="738" y="134" width="52" height="42" rx="6" fill="#1E293B"/>
@@ -73,7 +73,7 @@
 
   <!-- Panel B -->
   <rect x="892" y="72" width="228" height="210" rx="12" fill="url(#cardGrad)" stroke="#1E3A5F" stroke-width="1"/>
-  <text x="912" y="104" font-family="system-ui,-apple-system,sans-serif" font-size="9" font-weight="700" fill="#475569" letter-spacing="1.5">LISTA DEL CLIENTE</text>
+  <text x="912" y="104" font-family="system-ui,-apple-system,sans-serif" font-size="9" font-weight="700" fill="#475569" letter-spacing="1.5">LISTA B</text>
   <rect x="908" y="114" width="196" height="96" rx="8" fill="none" stroke="#334155" stroke-width="1.5" stroke-dasharray="5,4"/>
   <rect x="980" y="134" width="52" height="42" rx="6" fill="#1E293B"/>
   <text x="1006" y="161" font-family="system-ui,-apple-system,sans-serif" font-size="18" fill="#A3E635" text-anchor="middle">📂</text>
